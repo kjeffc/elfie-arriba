@@ -6,6 +6,5 @@ namespace Arriba.Configuration
 {
     public interface IArribaConfiguration
     {
-        string ArribaTable { get; }
     }
 }

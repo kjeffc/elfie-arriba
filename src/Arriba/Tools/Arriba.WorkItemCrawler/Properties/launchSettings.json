@@ -2,7 +2,10 @@
   "profiles": {
     "Arriba.WorkItemCrawler": {
       "commandName": "Project",
-      "commandLineArgs": "configName=CSEng mode=-r"
+      "commandLineArgs": "configName=CSEng mode=-r",
+      "environmentVariables": {
+        "ARRIBA__AZPAT": ""
+      }
     }
   }
 }

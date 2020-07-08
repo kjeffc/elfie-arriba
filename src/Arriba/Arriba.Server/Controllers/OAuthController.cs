@@ -14,10 +14,12 @@ namespace Arriba.Server.Controllers
     {
         private readonly IOAuthConfig _config;
         private readonly HttpClient _http;
+        private readonly IArribaServerConfiguration _serverConfig;
 
-        public OAuthController(IOAuthConfig config)
+        public OAuthController(IOAuthConfig config, IArribaServerConfiguration serverConfig)
         {
             _config = config;
+            _serverConfig = serverConfig;
             _http = new HttpClient();
         }
 
@@ -43,12 +45,12 @@ namespace Arriba.Server.Controllers
             });
 
             var tokenResult = await ReadTokenResultAsync(await GetTokenUrlAsync(_config), content);
-            return Redirect($"http://localhost:8080/#access_token={tokenResult.AccessToken}");
+            return Redirect($"{_serverConfig.FrontendBaseUrl}/#access_token={tokenResult.AccessToken}");
         }
 
         private async Task<Uri> GetAuthorizeUrlAsync(IOAuthConfig config)
         {
-            return await GetOAuthUrlAsync("authorize", config);
+            return await GetOAuthUrlAsync("authorize", config); 
         }
 
         private async Task<Uri> GetTokenUrlAsync(IOAuthConfig config)

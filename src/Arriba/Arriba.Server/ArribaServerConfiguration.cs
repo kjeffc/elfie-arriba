@@ -1,17 +1,14 @@
 ﻿using Arriba.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Arriba.Server
 {
-    public class ArribaServerConfiguration : IArribaConfiguration
+    public class ArribaServerConfiguration : IArribaServerConfiguration
     {        
+        public IOAuthConfig OAuthConfig { get; set; }
+        
+        public string FrontendBaseUrl { get; set; }
 
-        public string ArribaTable => "";
-
-        public OAuthConfig OAuthConfig { get; set; }
+        public bool EnabledAuthentication { get; set; }
 
         public ArribaServerConfiguration()
         {

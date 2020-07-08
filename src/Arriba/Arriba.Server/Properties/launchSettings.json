@@ -12,6 +12,7 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
+        "ARRIBASERVER__OAUTHCONFIG__APPSECRET": "",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },

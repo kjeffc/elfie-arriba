@@ -86,7 +86,7 @@ namespace Arriba.Server
                 {
                     cors.AddDefaultPolicy(builder =>
                                             {
-                                                builder.WithOrigins(new[] { "http://localhost:8080" })
+                                                builder.WithOrigins(new[] { serverConfig.FrontendBaseUrl })
                                                     .AllowAnyMethod()
                                                     .AllowCredentials()
                                                     .AllowAnyHeader();

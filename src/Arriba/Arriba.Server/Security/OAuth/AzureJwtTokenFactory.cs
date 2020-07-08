@@ -57,7 +57,7 @@ namespace Arriba.Security.OAuth
             return !String.Equals(issuer1, issuer2, StringComparison.OrdinalIgnoreCase);
         }
 
-        public static async Task<AzureJwtTokenFactory> CreateAsync(OAuthConfig authConfig)
+        public static async Task<AzureJwtTokenFactory> CreateAsync(IOAuthConfig authConfig)
         {
             string stsDiscoveryEndpoint = $"https://login.microsoftonline.com/{authConfig.TenantId}/v2.0/.well-known/openid-configuration";
 
