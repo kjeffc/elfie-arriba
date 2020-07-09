@@ -6,23 +6,15 @@ import "./polyfill";
 
 window.xhr = (path, params, body) => {
     return new Promise((resolve, reject) => {
+        var token = localStorage.getItem('token');
         const pathParams = path + buildUrlParameters(params);
         var xhr = new XMLHttpRequest();
+        if(!token && !configuration || !configuration.noCredentials) xhr.withCredentials = true;
 
-        var token = localStorage.getItem('token');
-        if(!token && (!configuration || !configuration.noCredentials)) xhr.withCredentials = true;
-
-        if (!token)
-        {
-            console.error("No Token Found");
-        }
-        
         xhr.open(body ? "POST" : "GET", configuration.url + "/" + pathParams, true); // For testing: http://httpbin.org/post
-
         if (token) {
             xhr.setRequestHeader('Authorization', "Bearer " + localStorage.getItem("token"))
         }
-
         xhr.onload = () => {
             if (xhr.status >= 200 && xhr.status < 300 || xhr.status === 404) { // 404 workaround for delete table.
                 const o = JSON.parse(xhr.responseText);
