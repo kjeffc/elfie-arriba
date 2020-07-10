@@ -1,6 +1,6 @@
 FROM arriba-base as build
 
-# # #  --- Functions Runtime Image --- # # #
+# # #  --- Dotnet Core Runtime Image --- # # #
 FROM mcr.microsoft.com/dotnet/core/runtime
 
 COPY --from=build /src/Arriba/Tools/bin/Debug/netcoreapp3.1 /Arriba/Tools/app
