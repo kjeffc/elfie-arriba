@@ -14,6 +14,8 @@ You can even host the Arriba engine directly in your C# process, creating tables
 
 See the [Arriba QuickStart](https://github.com/Microsoft/elfie-arriba/wiki/Arriba-QuickStart) to get Arriba and the Website running with sample CSV data in 15 minutes.
 
+See the [Arriba Docker Compose QuickStart](./docs/Arriba-DockerCompose-QuickStart.md) to get Azure DevOps Crawler, Arriba and the Website running locally.
+
 # Elfie
 
 Elfie is a library which makes it easy to build memory-efficient, extremely fast item sets providing search and traversal. Elfie uses the "structure of arrays" layout model for performance. A set class contains multiple columns of primitive types, enums, or a replacement string type, String8. Items of the set are structs which point to the set and a specific index. This gives the performance of structs (no allocations) with the convenience of classes (updates change all references of the item without copying). Elfie has primitives to provide text search (MemberIndex), define hierarchies (ItemTree), and define graphs (ItemMap). It also provides very fast read and write of CSV, TSV, and JSON via a consistent interface.
