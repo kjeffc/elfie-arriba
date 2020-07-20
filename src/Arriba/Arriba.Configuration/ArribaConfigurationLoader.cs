@@ -71,7 +71,9 @@ namespace Arriba.Configuration
             if (!File.Exists(jsonPath))
                 throw new FileNotFoundException(jsonPath);
 
-            configurationBuilder.AddJsonFile(jsonPath);
+            configurationBuilder.AddJsonFile(jsonPath)
+                .AddEnvironmentVariables();
+                
             configuration = configurationBuilder.Build();
 
             return true;
