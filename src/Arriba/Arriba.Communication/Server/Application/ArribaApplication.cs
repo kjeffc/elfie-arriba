@@ -98,7 +98,7 @@ namespace Arriba.Server
             if(!security.HasTableAccessSecurity)
             {
                 // TODO: CoreBug
-                hasPermission = true;
+                hasPermission = false;
                 //// If there's no security, table create is only allowed if the service is running as the same user
                 //hasPermission = ctx.Request.User.Identity.Name.Equals(WindowsIdentity.GetCurrent().Name);
             }
