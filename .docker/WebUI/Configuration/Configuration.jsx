@@ -16,12 +16,16 @@
 
         // Listing: Default Columns and Sort Order to show per table
         listingDefaults: {
-             "CSEng": { columns: ["ID", "Title", "Assigned To"], sortColumn: "ID", sortOrder: "desc" }
+             "Engagements": { columns: ["ID", "Work Item Type", "Title", "State", "Assigned To"], sortColumn: "ID", sortOrder: "desc" },
+             "Feedback": { columns: ["ID", "Work Item Type", "Title", "State", "Assigned To"], sortColumn: "ID", sortOrder: "desc" },
+             "Organizations": { columns: ["ID", "Title", "Region", "CountrySelection", "CSEIndustry"], sortColumn: "ID", sortOrder: "desc" }
         },
 
         // Listing: Default details rendering per table
         customDetailsProviders: {
-            "CSEng": WorkItemDetails
+            "Engagements": WorkItemDetails,
+            "Feedback": WorkItemDetails,
+            "Organizations": WorkItemDetails
         },
 
         databaseName : "CSEng",
@@ -45,7 +49,7 @@
         startContent: {
             overview:(
                 <span>
-                    All Louvau work items indexed.
+                    All items indexed.
                     Need more <a href="Search.html?help=true">help</a>?
                 </span>
             ),

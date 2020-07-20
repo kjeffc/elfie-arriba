@@ -8,16 +8,51 @@ services:
     build: 
       context: ./src
       dockerfile: Dockerfile
-  crawler:
+  crawl:
+    image: arriba-crawl
     build: 
       context: .docker/Crawler
       dockerfile: Dockerfile
     depends_on:
       - base
+  crawl-cseng:
+    image: arriba-crawl
+    depends_on:
+      - crawl
     volumes:
       - arriba:/Arriba/DiskCache
     environment:
       ARRIBA__AZPAT: ${AZPAT}
+      ARRIBA__ARRIBATABLE: "Engagements"
+      ARRIBA__ITEMDATABASENAME": "csefy19"
+      ARRIBA__ITEMPROJECT: "CSEng"
+      ARRIBA__WORKITEMTYPES__0: "Engagement"
+      ARRIBA__WORKITEMTYPES__1: "Activity"
+  crawl-feedback:
+    image: arriba-crawl
+    depends_on:
+      - crawl
+    volumes:
+      - arriba:/Arriba/DiskCache
+    environment:
+      ARRIBA__AZPAT: ${AZPAT}
+      ARRIBA__ARRIBATABLE: "Feedback"
+      ARRIBA__ITEMDATABASENAME": "csefy19"
+      ARRIBA__ITEMPROJECT: "CSE Feedback"
+      ARRIBA__WORKITEMTYPES__0: "Engineering Feedback"
+      ARRIBA__WORKITEMTYPES__1: "Program Feedback"
+  crawl-org:
+    image: arriba-crawl
+    depends_on:
+      - crawl
+    volumes:
+      - arriba:/Arriba/DiskCache
+    environment:
+      ARRIBA__AZPAT: ${AZPAT}
+      ARRIBA__ARRIBATABLE: "Organizations"
+      ARRIBA__ITEMDATABASENAME": "csefy19"
+      ARRIBA__ITEMPROJECT: "Organizations"
+      ARRIBA__WORKITEMTYPES__0: "Organization"
   server:
     build: 
       context: .docker/Server
