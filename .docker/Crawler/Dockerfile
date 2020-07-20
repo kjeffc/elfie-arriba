@@ -12,4 +12,4 @@ RUN chmod +x ./run-crawler.sh
 
 RUN ls -l
 RUN find /Arriba
-CMD ["./run-crawler.sh", "configName=cseng", "mode=-i"] 
+CMD ["./run-crawler.sh", "configName=default", "mode=-i"] 
