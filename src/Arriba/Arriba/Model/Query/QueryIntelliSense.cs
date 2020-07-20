@@ -545,7 +545,7 @@ namespace Arriba.Model.Query
             string completeQuery = GetCompleteQueryPrefix(result);
 
             // Recommend the top ten values in the column with the prefix typed so far
-            DistinctResult topValues = singleTable.Query(new DistinctQueryTop(singleColumn.Name, lastTerm.Value.ToString(), completeQuery, 10));
+            DistinctResult topValues = singleTable.Query(new DistinctQueryTop(singleColumn.Name, lastTerm.Value.ToString(), completeQuery, 25));
             int total = (int)topValues.Total;
             if (topValues.Total == 0) return;
 
