@@ -253,6 +253,7 @@ namespace Arriba.TfsWorkItemCrawler.ItemProviders
                 uri = new Uri($"{uri.AbsoluteUri}&{apiVersion}");
             }
 
+            Trace.WriteLine(uri.AbsoluteUri);
             return uri;
         }
 
