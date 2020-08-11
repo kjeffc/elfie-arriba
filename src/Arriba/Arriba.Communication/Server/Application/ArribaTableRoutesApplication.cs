@@ -80,41 +80,51 @@ namespace Arriba.Server.Application
 
         private IResponse GetTables(IRequestContext ctx, Route route)
         {
-            return ArribaResponse.Ok(this.Database.TableNames);
+            return ArribaResponse.Ok(Service.GetTables());
         }
 
         private IResponse GetAllBasics(IRequestContext ctx, Route route)
         {
-            return Service.GetAllBasics(ctx.Request.User);
+            return ArribaResponse.Ok(Service.GetAllBasics(ctx.Request.User));
         }
 
         private IResponse GetTableInformation(IRequestContext ctx, Route route)
         {
             var tableName = GetAndValidateTableName(route);
-            return Service.GetTableInformation(ctx.Request.User, tableName);
-        }
+            var response = ArribaResponse.NotFound();
+            var tableInformation = Service.GetTableBasics(tableName, ctx.Request.User);
 
+            if (tableInformation != null)
+            {
+                response = ArribaResponse.Ok(tableInformation);
+            }
+
+            return response;
+        }
         private IResponse UnloadTable(IRequestContext ctx, Route route)
         {
             var tableName = GetAndValidateTableName(route);
-            return Service.UnloadTable(tableName);
+            Service.UnloadTable(tableName);
+            return ArribaResponse.Ok("Table unloaded");
         }
 
         private IResponse UnloadAll(IRequestContext ctx, Route route)
         {
-            return Service.UnloadAll();
+            Service.UnloadAll();
+            return ArribaResponse.Ok("All Tables unloaded");
         }
 
         private IResponse Drop(IRequestContext ctx, Route route)
         {
             var tableName = GetAndValidateTableName(route);
-            return Service.Drop(ctx, tableName);
+            Service.Drop(ctx, tableName);
+            return ArribaResponse.Ok("Table deleted");
         }
 
         private IResponse GetTablePermissions(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            return Service.GetTablePermissions(tableName);
+            return ArribaResponse.Ok(Service.GetTablePermissions(tableName));
         }
 
         private IResponse DeleteRows(IRequestContext ctx, Route route)
@@ -124,20 +134,22 @@ namespace Arriba.Server.Application
 
             // Run server correctors
             query = this.CurrentCorrectors(ctx).Correct(query);
-            return Service.DeleteRows(query, tableName);
+            return ArribaResponse.Ok(Service.DeleteRows(query, tableName));
         }
 
         private async Task<IResponse> SetTablePermissions(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
             SecurityPermissions security = await request.Request.ReadBodyAsync<SecurityPermissions>();
-            return Service.SetTablePermissions(tableName, security);
+            Service.SetTablePermissions(tableName, security);
+            return ArribaResponse.Ok("Security Updated");
         }
 
         private async Task<IResponse> CreateNew(IRequestContext request, Route routeData)
         {
             CreateTableRequest createTable = await request.Request.ReadBodyAsync<CreateTableRequest>();
-            return Service.CreateNew(createTable, request.Request.User, request);
+            Service.CreateNew(createTable, request.Request.User, request);
+            return ArribaResponse.Created(createTable.TableName);
         }
 
         /// <summary>
@@ -147,7 +159,8 @@ namespace Arriba.Server.Application
         {
             string tableName = GetAndValidateTableName(route);
             var columns = await request.Request.ReadBodyAsync<List<ColumnDetails>>();
-            return Service.AddColumns(columns, request, tableName);
+            Service.AddColumns(columns, request, tableName);
+            return ArribaResponse.Created("Added");
         }
 
         /// <summary>
@@ -156,16 +169,22 @@ namespace Arriba.Server.Application
         private IResponse Reload(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            return Service.Reload(request, tableName);
+            Service.Reload(request, tableName);
+            return ArribaResponse.Ok("Reloaded");
         }
 
-        /// <summary>
-        /// Saves the specified table.
-        /// </summary>
         private IResponse Save(IRequestContext request, Route route)
         {
+            IResponse response = ArribaResponse.Ok("Saved");
             string tableName = GetAndValidateTableName(route);
-            return Service.Save(request, tableName);
+            var details = Service.Save(request, tableName);
+
+            if (!details.Succeeded)
+            {
+                response = ArribaResponse.Error("Table state is inconsistent. Not saving. Restart server to reload. Errors: " + details.Errors);
+            }
+
+            return response;
         }
 
         /// <summary>
@@ -185,7 +204,9 @@ namespace Arriba.Server.Application
             {
                 return ArribaResponse.BadRequest("Unknown permission scope {0}", route["scope"]);
             }
-            return Service.Revoke(identity, scope, request, tableName);
+            Service.Revoke(identity, scope, request, tableName);
+         
+            return ArribaResponse.Ok("Revoked");
         }
 
         /// <summary>
@@ -205,7 +226,9 @@ namespace Arriba.Server.Application
             {
                 return ArribaResponse.BadRequest("Unknown permission scope {0}", route["scope"]);
             }
-            return Service.Grant(identity, scope, request, tableName);
+
+            Service.Grant(identity, scope, request, tableName);
+            return ArribaResponse.Ok("Granted");
         }
     }
 }
