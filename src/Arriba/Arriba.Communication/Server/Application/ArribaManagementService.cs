@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Arriba.Communication;
-using Arriba.Communication.Application;
 using Arriba.Model;
 using Arriba.Model.Column;
 using Arriba.Model.Expressions;
@@ -10,9 +9,8 @@ using Arriba.Model.Query;
 using Arriba.Model.Security;
 using Arriba.Monitoring;
 using Arriba.Types;
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Security.Principal;
 
 namespace Arriba.Server.Application
 {
@@ -27,12 +25,12 @@ namespace Arriba.Server.Application
             this.Authority = auth;
         }
 
-        public IResponse GetTables(IRequestContext ctx, Route route)
+        public IResponse GetTables()
         {
             return ArribaResponse.Ok(this.Database.TableNames);
         }
 
-        public IResponse GetAllBasics(IRequestContext ctx)
+        public IResponse GetAllBasics(IPrincipal user)
         {
             bool hasTables = false;
 
@@ -41,9 +39,9 @@ namespace Arriba.Server.Application
             {
                 hasTables = true;
 
-                if (Authority.HasTableAccess(tableName, ctx.Request.User, PermissionScope.Reader))
+                if (Authority.HasTableAccess(tableName, user, PermissionScope.Reader))
                 {
-                    allBasics[tableName] = GetTableBasics(tableName, ctx);
+                    allBasics[tableName] = GetTableBasics(tableName, user);
                 }
             }
 
@@ -57,20 +55,20 @@ namespace Arriba.Server.Application
             return ArribaResponse.Ok(allBasics);
         }
 
-        public IResponse GetTableInformation(IRequestContext ctx, string tableName)
+        public IResponse GetTableInformation(IPrincipal user, string tableName)
         {
             if (!this.Database.TableExists(tableName))
             {
                 return ArribaResponse.NotFound();
             }
 
-            TableInformation ti = GetTableBasics(tableName, ctx);
+            TableInformation ti = GetTableBasics(tableName, user);
             return ArribaResponse.Ok(ti);
         }
 
-        public TableInformation GetTableBasics(string tableName, IRequestContext ctx)
+        public TableInformation GetTableBasics(string tableName, IPrincipal user)
         {
-            if (!Authority.HasTableAccess(tableName, ctx.Request.User, PermissionScope.Reader))
+            if (!Authority.HasTableAccess(tableName, user, PermissionScope.Reader))
                 return null;
 
             var table = this.Database[tableName];
@@ -80,10 +78,10 @@ namespace Arriba.Server.Application
             ti.PartitionCount = table.PartitionCount;
             ti.RowCount = table.Count;
             ti.LastWriteTimeUtc = table.LastWriteTimeUtc;
-            ti.CanWrite = Authority.HasTableAccess(tableName, ctx.Request.User, PermissionScope.Writer);
-            ti.CanAdminister = Authority.HasTableAccess(tableName, ctx.Request.User, PermissionScope.Owner);
+            ti.CanWrite = Authority.HasTableAccess(tableName, user, PermissionScope.Writer);
+            ti.CanAdminister = Authority.HasTableAccess(tableName, user, PermissionScope.Owner);
 
-            IList<string> restrictedColumns = this.Database.GetRestrictedColumns(tableName, (si) => Authority.IsInIdentity(ctx.Request.User, si));
+            IList<string> restrictedColumns = this.Database.GetRestrictedColumns(tableName, (si) => Authority.IsInIdentity(user, si));
             if (restrictedColumns == null)
             {
                 ti.Columns = table.ColumnDetails;
@@ -101,13 +99,13 @@ namespace Arriba.Server.Application
             return ti;
         }
 
-        public IResponse UnloadTable(IRequestContext ctx, string tableName)
+        public IResponse UnloadTable(string tableName)
         {
             this.Database.UnloadTable(tableName);
             return ArribaResponse.Ok($"Table unloaded");
         }
 
-        public IResponse UnloadAll(IRequestContext ctx, Route route)
+        public IResponse UnloadAll()
         {
             this.Database.UnloadAll();
             return ArribaResponse.Ok("All Tables unloaded");
@@ -127,7 +125,7 @@ namespace Arriba.Server.Application
             }
         }
 
-        public IResponse GetTablePermissions(IRequestContext request, string tableName)
+        public IResponse GetTablePermissions(string tableName)
         {
             if (!this.Database.TableExists(tableName))
             {
@@ -152,10 +150,8 @@ namespace Arriba.Server.Application
             return ArribaResponse.Ok(result.Count);
         }
 
-        public async Task<IResponse> SetTablePermissions(IRequestContext request, string tableName)
+        public IResponse SetTablePermissions(string tableName, SecurityPermissions security)
         {
-            SecurityPermissions security = await request.Request.ReadBodyAsync<SecurityPermissions>();
-
             if (!this.Database.TableExists(tableName))
             {
                 return ArribaResponse.NotFound("Table doesn't exist to update security for.");
@@ -168,10 +164,8 @@ namespace Arriba.Server.Application
             return ArribaResponse.Ok("Security Updated");
         }
 
-        public async Task<IResponse> CreateNew(IRequestContext request, ITelemetry telemetry, Route routeData)
+        public IResponse CreateNew(CreateTableRequest createTable, IPrincipal user, ITelemetry telemetry)
         {
-            CreateTableRequest createTable = await request.Request.ReadBodyAsync<CreateTableRequest>();
-
             if (createTable == null)
             {
                 return ArribaResponse.BadRequest("Invalid body");
@@ -194,7 +188,7 @@ namespace Arriba.Server.Application
                 if (createTable.Permissions != null)
                 {
                     // Ensure the creating user is always an owner
-                    createTable.Permissions.Grant(IdentityScope.User, request.Request.User.Identity.Name, PermissionScope.Owner);
+                    createTable.Permissions.Grant(IdentityScope.User, user.Identity.Name, PermissionScope.Owner);
 
                     this.Database.SetSecurity(createTable.TableName, createTable.Permissions);
                 }
@@ -207,7 +201,7 @@ namespace Arriba.Server.Application
             return ArribaResponse.Ok(null);
         }
 
-        public async Task<IResponse> AddColumns(IRequestContext request, ITelemetry telemetry, string tableName)
+        public IResponse AddColumns(List<ColumnDetails> columns, ITelemetry telemetry, string tableName)
         {
             using (telemetry.Monitor(MonitorEventLevel.Information, "AddColumn", type: "Table", identity: tableName))
             {
@@ -218,7 +212,6 @@ namespace Arriba.Server.Application
 
                 Table table = this.Database[tableName];
 
-                List<ColumnDetails> columns = await request.Request.ReadBodyAsync<List<ColumnDetails>>();
                 table.AddColumns(columns);
 
                 return ArribaResponse.Ok("Added");
@@ -266,23 +259,11 @@ namespace Arriba.Server.Application
             }
         }
 
-        public async Task<IResponse> Revoke(IRequestContext request, Route route, ITelemetry telemetry, string tableName)
+        public Response Revoke(SecurityIdentity identity, PermissionScope scope, ITelemetry telemetry, string tableName)
         {
             if (!this.Database.TableExists(tableName))
             {
                 return ArribaResponse.NotFound("Table not found to revoke permission on.");
-            }
-
-            var identity = await request.Request.ReadBodyAsync<SecurityIdentity>();
-            if (String.IsNullOrEmpty(identity.Name))
-            {
-                return ArribaResponse.BadRequest("Identity name must not be empty");
-            }
-
-            PermissionScope scope;
-            if (!Enum.TryParse<PermissionScope>(route["scope"], true, out scope))
-            {
-                return ArribaResponse.BadRequest("Unknown permission scope {0}", route["scope"]);
             }
 
             using (telemetry.Monitor(MonitorEventLevel.Information, "RevokePermission", type: "Table", identity: tableName, detail: new { Scope = scope, Identity = identity }))
@@ -297,26 +278,14 @@ namespace Arriba.Server.Application
             return ArribaResponse.Ok("Revoked");
         }
 
-        public async Task<IResponse> Grant(IRequestContext request, Route route, string tableName)
+        public IResponse Grant(SecurityIdentity identity, PermissionScope scope, ITelemetry telemetry, string tableName)
         {
             if (!this.Database.TableExists(tableName))
             {
                 return ArribaResponse.NotFound("Table not found to grant permission on.");
             }
 
-            var identity = await request.Request.ReadBodyAsync<SecurityIdentity>();
-            if (String.IsNullOrEmpty(identity.Name))
-            {
-                return ArribaResponse.BadRequest("Identity name must not be empty");
-            }
-
-            PermissionScope scope;
-            if (!Enum.TryParse<PermissionScope>(route["scope"], true, out scope))
-            {
-                return ArribaResponse.BadRequest("Unknown permission scope {0}", route["scope"]);
-            }
-
-            using (request.Monitor(MonitorEventLevel.Information, "GrantPermission", type: "Table", identity: tableName, detail: new { Scope = scope, Identity = identity }))
+            using (telemetry.Monitor(MonitorEventLevel.Information, "GrantPermission", type: "Table", identity: tableName, detail: new { Scope = scope, Identity = identity }))
             {
                 SecurityPermissions security = this.Database.Security(tableName);
                 security.Grant(identity.Scope, identity.Name, scope);

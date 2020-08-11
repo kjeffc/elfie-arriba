@@ -1,22 +1,19 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-using System.Collections.Generic;
-using System.Composition;
-using System.Threading.Tasks;
-
 using Arriba.Communication;
 using Arriba.Communication.Application;
-using Arriba.Model;
 using Arriba.Model.Column;
 using Arriba.Model.Expressions;
 using Arriba.Model.Query;
 using Arriba.Model.Security;
-using Arriba.Monitoring;
 using Arriba.Server.Authentication;
 using Arriba.Server.Hosting;
 using Arriba.Types;
+using System;
+using System.Collections.Generic;
+using System.Composition;
+using System.Threading.Tasks;
 
 namespace Arriba.Server.Application
 {
@@ -88,24 +85,24 @@ namespace Arriba.Server.Application
 
         private IResponse GetAllBasics(IRequestContext ctx, Route route)
         {
-            return Service.GetAllBasics(ctx);
+            return Service.GetAllBasics(ctx.Request.User);
         }
 
         private IResponse GetTableInformation(IRequestContext ctx, Route route)
         {
             var tableName = GetAndValidateTableName(route);
-            return Service.GetTableInformation(ctx, tableName);
+            return Service.GetTableInformation(ctx.Request.User, tableName);
         }
 
         private IResponse UnloadTable(IRequestContext ctx, Route route)
         {
             var tableName = GetAndValidateTableName(route);
-            return Service.UnloadTable(ctx, tableName);
+            return Service.UnloadTable(tableName);
         }
 
         private IResponse UnloadAll(IRequestContext ctx, Route route)
         {
-            return Service.UnloadAll(ctx, route);
+            return Service.UnloadAll();
         }
 
         private IResponse Drop(IRequestContext ctx, Route route)
@@ -117,7 +114,7 @@ namespace Arriba.Server.Application
         private IResponse GetTablePermissions(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            return Service.GetTablePermissions(request, tableName);
+            return Service.GetTablePermissions(tableName);
         }
 
         private IResponse DeleteRows(IRequestContext ctx, Route route)
@@ -133,12 +130,14 @@ namespace Arriba.Server.Application
         private async Task<IResponse> SetTablePermissions(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            return await Service.SetTablePermissions(request, tableName);
+            SecurityPermissions security = await request.Request.ReadBodyAsync<SecurityPermissions>();
+            return Service.SetTablePermissions(tableName, security);
         }
 
         private async Task<IResponse> CreateNew(IRequestContext request, Route routeData)
         {
-            return await Service.CreateNew(request, request, routeData);
+            CreateTableRequest createTable = await request.Request.ReadBodyAsync<CreateTableRequest>();
+            return Service.CreateNew(createTable, request.Request.User, request);
         }
 
         /// <summary>
@@ -147,7 +146,8 @@ namespace Arriba.Server.Application
         private async Task<IResponse> AddColumns(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            return await Service.AddColumns(request, request, tableName);
+            var columns = await request.Request.ReadBodyAsync<List<ColumnDetails>>();
+            return Service.AddColumns(columns, request, tableName);
         }
 
         /// <summary>
@@ -174,7 +174,18 @@ namespace Arriba.Server.Application
         private async Task<IResponse> Revoke(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            return await Service.Revoke(request, route, request, tableName);
+            var identity = await request.Request.ReadBodyAsync<SecurityIdentity>();
+            if (String.IsNullOrEmpty(identity.Name))
+            {
+                return ArribaResponse.BadRequest("Identity name must not be empty");
+            }
+
+            PermissionScope scope;
+            if (!Enum.TryParse<PermissionScope>(route["scope"], true, out scope))
+            {
+                return ArribaResponse.BadRequest("Unknown permission scope {0}", route["scope"]);
+            }
+            return Service.Revoke(identity, scope, request, tableName);
         }
 
         /// <summary>
@@ -183,7 +194,18 @@ namespace Arriba.Server.Application
         private async Task<IResponse> Grant(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            return await Service.Grant(request, route, tableName);
+            var identity = await request.Request.ReadBodyAsync<SecurityIdentity>();
+            if (String.IsNullOrEmpty(identity.Name))
+            {
+                return ArribaResponse.BadRequest("Identity name must not be empty");
+            }
+
+            PermissionScope scope;
+            if (!Enum.TryParse<PermissionScope>(route["scope"], true, out scope))
+            {
+                return ArribaResponse.BadRequest("Unknown permission scope {0}", route["scope"]);
+            }
+            return Service.Grant(identity, scope, request, tableName);
         }
     }
 }
