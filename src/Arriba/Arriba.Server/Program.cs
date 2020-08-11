@@ -19,7 +19,6 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Threading.Tasks;
 using AspNetHost = Microsoft.Extensions.Hosting.Host;
 
@@ -144,8 +143,32 @@ namespace Arriba.Server
 
                 var server = host.GetService<ComposedApplicationServer>();
                 var request = new ArribaHttpContextRequest(context, server.ReaderWriter);
-                var response = await server.HandleAsync(request, false);
+                var response = await ExceptionToArribaResponse(async() => await server.HandleAsync(request, false));
                 await Write(request, response, server.ReaderWriter, context);
+            }
+
+            private async Task<IResponse> ExceptionToArribaResponse(Func<Task<IResponse>> func)
+            {
+                IResponse response;
+
+                try
+                {
+                    response = await func();
+                }
+                catch (ArribaAccessForbiddenException ex)
+                {
+                    response = ArribaResponse.Forbidden(ex.Message);
+                }
+                catch (TableNotFoundException ex)
+                {
+                    response = ArribaResponse.NotFound(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    response = ArribaResponse.BadRequest(ex.Message);
+                }
+
+                return response;
             }
 
             private async Task Write(ArribaHttpContextRequest request, IResponse response, IContentReaderWriterService readerWriter, HttpContext context)

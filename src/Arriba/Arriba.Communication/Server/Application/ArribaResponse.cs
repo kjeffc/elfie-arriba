@@ -30,12 +30,12 @@ namespace Arriba.Server
             return new ArribaResponse(ResponseStatus.Created, body);
         }
 
-        internal static ArribaResponse Forbidden(object body)
+        public static ArribaResponse Forbidden(object body)
         {
             return new ArribaResponse(ResponseStatus.Forbidden, body);
         }
 
-        internal static ArribaResponse BadRequest(string format, params object[] args)
+        public static ArribaResponse BadRequest(string format, params object[] args)
         {
             return new ArribaResponse(ResponseStatus.Error, string.Format(format, args));
         }
@@ -46,7 +46,7 @@ namespace Arriba.Server
             return new ArribaResponse(ResponseStatus.Error, body);
         }
 
-        internal static new ArribaResponse NotFound(object body)
+        public static new ArribaResponse NotFound(object body)
         {
             return new ArribaResponse(ResponseStatus.NotFound, body);
         }
