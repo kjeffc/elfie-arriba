@@ -23,10 +23,14 @@ namespace Arriba.Server.Application
     [Export(typeof(IRoutedApplication))]
     internal class ArribaTableRoutesApplication : ArribaApplication
     {
+        private ArribaManagementService Service { get; }
+
         [ImportingConstructor]
         public ArribaTableRoutesApplication(DatabaseFactory f, ClaimsAuthenticationService auth)
             : base(f, auth)
         {
+            this.Service = new ArribaManagementService(this.Database, this.Authority);
+
             // GET - return tables in Database
             this.Get("", this.GetTables);
 
@@ -84,219 +88,57 @@ namespace Arriba.Server.Application
 
         private IResponse GetAllBasics(IRequestContext ctx, Route route)
         {
-            bool hasTables = false;
-
-            Dictionary<string, TableInformation> allBasics = new Dictionary<string, TableInformation>();
-            foreach (string tableName in this.Database.TableNames)
-            {
-                hasTables = true;
-
-                if (Authority.HasTableAccess(tableName, ctx.Request.User, PermissionScope.Reader))
-                {
-                    allBasics[tableName] = GetTableBasics(tableName, ctx);
-                }
-            }
-
-            // If you didn't have access to any tables, return a distinct result to show Access Denied in the browser
-            // but not a 401, because that is eaten by CORS.
-            if (allBasics.Count == 0 && hasTables)
-            {
-                return ArribaResponse.Ok(null);
-            }
-
-            return ArribaResponse.Ok(allBasics);
+            return Service.GetAllBasics(ctx);
         }
 
         private IResponse GetTableInformation(IRequestContext ctx, Route route)
         {
             var tableName = GetAndValidateTableName(route);
-            return GetTableInformation(ctx, tableName);
-        }
-
-        private IResponse GetTableInformation(IRequestContext ctx, string tableName)
-        {
-            if (!this.Database.TableExists(tableName))
-            {
-                return ArribaResponse.NotFound();
-            }
-
-            TableInformation ti = GetTableBasics(tableName, ctx);
-            return ArribaResponse.Ok(ti);
-        }
-
-        private TableInformation GetTableBasics(string tableName, IRequestContext ctx)
-        {
-            if (!Authority.HasTableAccess(tableName, ctx.Request.User, PermissionScope.Reader))
-                return null;
-
-            var table = this.Database[tableName];
-
-            TableInformation ti = new TableInformation();
-            ti.Name = tableName;
-            ti.PartitionCount = table.PartitionCount;
-            ti.RowCount = table.Count;
-            ti.LastWriteTimeUtc = table.LastWriteTimeUtc;
-            ti.CanWrite = Authority.HasTableAccess(tableName, ctx.Request.User, PermissionScope.Writer);
-            ti.CanAdminister = Authority.HasTableAccess(tableName, ctx.Request.User, PermissionScope.Owner);
-
-            IList<string> restrictedColumns = this.Database.GetRestrictedColumns(tableName, (si) => Authority.IsInIdentity(ctx.Request.User, si));
-            if (restrictedColumns == null)
-            {
-                ti.Columns = table.ColumnDetails;
-            }
-            else
-            {
-                List<ColumnDetails> allowedColumns = new List<ColumnDetails>();
-                foreach (ColumnDetails column in table.ColumnDetails)
-                {
-                    if (!restrictedColumns.Contains(column.Name)) allowedColumns.Add(column);
-                }
-                ti.Columns = allowedColumns;
-            }
-
-            return ti;
+            return Service.GetTableInformation(ctx, tableName);
         }
 
         private IResponse UnloadTable(IRequestContext ctx, Route route)
         {
             var tableName = GetAndValidateTableName(route);
-            return UnloadTable(ctx, tableName);
-        }
-
-        private IResponse UnloadTable(IRequestContext ctx, string tableName)
-        {
-            this.Database.UnloadTable(tableName);
-            return ArribaResponse.Ok($"Table unloaded");
+            return Service.UnloadTable(ctx, tableName);
         }
 
         private IResponse UnloadAll(IRequestContext ctx, Route route)
         {
-            this.Database.UnloadAll();
-            return ArribaResponse.Ok("All Tables unloaded");
+            return Service.UnloadAll(ctx, route);
         }
 
         private IResponse Drop(IRequestContext ctx, Route route)
         {
             var tableName = GetAndValidateTableName(route);
-            return Drop(ctx, tableName);
+            return Service.Drop(ctx, tableName);
         }
-
-        private IResponse Drop(IRequestContext ctx, string tableName)
-        {
-            if (!this.Database.TableExists(tableName))
-            {
-                return ArribaResponse.NotFound();
-            }
-
-            using (ctx.Monitor(MonitorEventLevel.Information, "Drop", type: "Table", identity: tableName))
-            {
-                this.Database.DropTable(tableName);
-                return ArribaResponse.Ok("Table deleted");
-            }
-        }
-
 
         private IResponse GetTablePermissions(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            return GetTablePermissions(request, tableName);
+            return Service.GetTablePermissions(request, tableName);
         }
-
-        private IResponse GetTablePermissions(IRequestContext request, string tableName)
-        {
-            if (!this.Database.TableExists(tableName))
-            {
-                return ArribaResponse.NotFound("Table not found to return security for.");
-            }
-
-            var security = this.Database.Security(tableName);
-            return ArribaResponse.Ok(security);
-        }
-
 
         private IResponse DeleteRows(IRequestContext ctx, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            return DeleteRows(ctx, tableName);
-        }
-
-        private IResponse DeleteRows(IRequestContext ctx, string tableName)
-        {
             IExpression query = SelectQuery.ParseWhere(ctx.Request.ResourceParameters["q"]);
 
             // Run server correctors
             query = this.CurrentCorrectors(ctx).Correct(query);
-
-            if (!this.Database.TableExists(tableName))
-            {
-                return ArribaResponse.NotFound();
-            }
-
-            Table table = this.Database[tableName];
-            DeleteResult result = table.Delete(query);
-
-            return ArribaResponse.Ok(result.Count);
+            return Service.DeleteRows(query, tableName);
         }
 
         private async Task<IResponse> SetTablePermissions(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            return await SetTablePermissions(request, tableName);
-        }
-
-        private async Task<IResponse> SetTablePermissions(IRequestContext request, string tableName)
-        {
-            SecurityPermissions security = await request.Request.ReadBodyAsync<SecurityPermissions>();
-
-            if (!this.Database.TableExists(tableName))
-            {
-                return ArribaResponse.NotFound("Table doesn't exist to update security for.");
-            }
-
-            // Reset table permissions and save them
-            this.Database.SetSecurity(tableName, security);
-            this.Database.SaveSecurity(tableName);
-
-            return ArribaResponse.Ok("Security Updated");
+            return await Service.SetTablePermissions(request, tableName);
         }
 
         private async Task<IResponse> CreateNew(IRequestContext request, Route routeData)
         {
-            CreateTableRequest createTable = await request.Request.ReadBodyAsync<CreateTableRequest>();
-
-            if (createTable == null)
-            {
-                return ArribaResponse.BadRequest("Invalid body");
-            }
-
-            // Does the table already exist? 
-            if (this.Database.TableExists(createTable.TableName))
-            {
-                return ArribaResponse.BadRequest("Table already exists");
-            }
-
-            using (request.Monitor(MonitorEventLevel.Information, "Create", type: "Table", identity: createTable.TableName, detail: createTable))
-            {
-                var table = this.Database.AddTable(createTable.TableName, createTable.ItemCountLimit);
-
-                // Add columns from request
-                table.AddColumns(createTable.Columns);
-
-                // Include permissions from request
-                if (createTable.Permissions != null)
-                {
-                    // Ensure the creating user is always an owner
-                    createTable.Permissions.Grant(IdentityScope.User, request.Request.User.Identity.Name, PermissionScope.Owner);
-
-                    this.Database.SetSecurity(createTable.TableName, createTable.Permissions);
-                }
-
-                // Save, so that table existence, column definitions, and permissions are saved
-                table.Save();
-                this.Database.SaveSecurity(createTable.TableName);
-            }
-
-            return ArribaResponse.Ok(null);
+            return await Service.CreateNew(request, routeData);
         }
 
         /// <summary>
@@ -305,25 +147,7 @@ namespace Arriba.Server.Application
         private async Task<IResponse> AddColumns(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            return await AddColumns(request, tableName);
-        }
-
-        private async Task<IResponse> AddColumns(IRequestContext request, string tableName)
-        {
-            using (request.Monitor(MonitorEventLevel.Information, "AddColumn", type: "Table", identity: tableName))
-            {
-                if (!Database.TableExists(tableName))
-                {
-                    return ArribaResponse.NotFound("Table not found to Add Columns to.");
-                }
-
-                Table table = this.Database[tableName];
-
-                List<ColumnDetails> columns = await request.Request.ReadBodyAsync<List<ColumnDetails>>();
-                table.AddColumns(columns);
-
-                return ArribaResponse.Ok("Added");
-            }
+            return await Service.AddColumns(request, tableName);
         }
 
         /// <summary>
@@ -332,21 +156,7 @@ namespace Arriba.Server.Application
         private IResponse Reload(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            return Reload(request, tableName);
-        }
-
-        private IResponse Reload(IRequestContext request, string tableName)
-        {
-            if (!this.Database.TableExists(tableName))
-            {
-                return ArribaResponse.NotFound("Table not found to reload");
-            }
-
-            using (request.Monitor(MonitorEventLevel.Information, "Reload", type: "Table", identity: tableName))
-            {
-                this.Database.ReloadTable(tableName);
-                return ArribaResponse.Ok("Reloaded");
-            }
+            return Service.Reload(request, tableName);
         }
 
         /// <summary>
@@ -355,34 +165,7 @@ namespace Arriba.Server.Application
         private IResponse Save(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            return Save(request, tableName);
-        }
-
-        private IResponse Save(IRequestContext request, string tableName)
-        {
-            if (!this.Database.TableExists(tableName))
-            {
-                return ArribaResponse.NotFound("Table not found to save");
-            }
-
-            using (request.Monitor(MonitorEventLevel.Information, "Save", type: "Table", identity: tableName))
-            {
-                Table t = this.Database[tableName];
-
-                // Verify before saving; don't save if inconsistent
-                ExecutionDetails d = new ExecutionDetails();
-                t.VerifyConsistency(VerificationLevel.Normal, d);
-
-                if (d.Succeeded)
-                {
-                    t.Save();
-                    return ArribaResponse.Ok("Saved");
-                }
-                else
-                {
-                    return ArribaResponse.Error("Table state inconsistent. Not saving. Restart server to reload. Errors: " + d.Errors);
-                }
-            }
+            return Service.Save(request, tableName);
         }
 
         /// <summary>
@@ -391,38 +174,7 @@ namespace Arriba.Server.Application
         private async Task<IResponse> Revoke(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            return await Revoke(request,route, tableName);
-        }
-
-        private async Task<IResponse> Revoke(IRequestContext request, Route route, string tableName)
-        {
-            if (!this.Database.TableExists(tableName))
-            {
-                return ArribaResponse.NotFound("Table not found to revoke permission on.");
-            }
-
-            var identity = await request.Request.ReadBodyAsync<SecurityIdentity>();
-            if (String.IsNullOrEmpty(identity.Name))
-            {
-                return ArribaResponse.BadRequest("Identity name must not be empty");
-            }
-
-            PermissionScope scope;
-            if (!Enum.TryParse<PermissionScope>(route["scope"], true, out scope))
-            {
-                return ArribaResponse.BadRequest("Unknown permission scope {0}", route["scope"]);
-            }
-
-            using (request.Monitor(MonitorEventLevel.Information, "RevokePermission", type: "Table", identity: tableName, detail: new { Scope = scope, Identity = identity }))
-            {
-                SecurityPermissions security = this.Database.Security(tableName);
-                security.Revoke(identity, scope);
-
-                // Save permissions
-                this.Database.SaveSecurity(tableName);
-            }
-
-            return ArribaResponse.Ok("Revoked");
+            return await Service.Revoke(request,route, tableName);
         }
 
         /// <summary>
@@ -431,48 +183,7 @@ namespace Arriba.Server.Application
         private async Task<IResponse> Grant(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            return await Grant(request, route, tableName);
-        }
-
-        private async Task<IResponse> Grant(IRequestContext request, Route route, string tableName)
-        {
-            if (!this.Database.TableExists(tableName))
-            {
-                return ArribaResponse.NotFound("Table not found to grant permission on.");
-            }
-
-            var identity = await request.Request.ReadBodyAsync<SecurityIdentity>();
-            if (String.IsNullOrEmpty(identity.Name))
-            {
-                return ArribaResponse.BadRequest("Identity name must not be empty");
-            }
-
-            PermissionScope scope;
-            if (!Enum.TryParse<PermissionScope>(route["scope"], true, out scope))
-            {
-                return ArribaResponse.BadRequest("Unknown permission scope {0}", route["scope"]);
-            }
-
-            using (request.Monitor(MonitorEventLevel.Information, "GrantPermission", type: "Table", identity: tableName, detail: new { Scope = scope, Identity = identity }))
-            {
-                SecurityPermissions security = this.Database.Security(tableName);
-                security.Grant(identity.Scope, identity.Name, scope);
-
-                // Save permissions
-                this.Database.SaveSecurity(tableName);
-            }
-
-            return ArribaResponse.Ok("Granted");
-        }
-
-        private static string SanitizeIdentity(string rawIdentity)
-        {
-            if (String.IsNullOrEmpty(rawIdentity))
-            {
-                throw new ArgumentException("Identity must not be empty", "rawIdentity");
-            }
-
-            return rawIdentity.Replace("/", "\\");
+            return await Service.Grant(request, route, tableName);
         }
     }
 }
