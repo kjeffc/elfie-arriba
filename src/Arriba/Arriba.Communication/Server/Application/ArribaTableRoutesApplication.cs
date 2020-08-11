@@ -138,7 +138,7 @@ namespace Arriba.Server.Application
 
         private async Task<IResponse> CreateNew(IRequestContext request, Route routeData)
         {
-            return await Service.CreateNew(request, routeData);
+            return await Service.CreateNew(request, request, routeData);
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace Arriba.Server.Application
         private async Task<IResponse> AddColumns(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            return await Service.AddColumns(request, tableName);
+            return await Service.AddColumns(request, request, tableName);
         }
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace Arriba.Server.Application
         private async Task<IResponse> Revoke(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            return await Service.Revoke(request,route, tableName);
+            return await Service.Revoke(request, route, request, tableName);
         }
 
         /// <summary>

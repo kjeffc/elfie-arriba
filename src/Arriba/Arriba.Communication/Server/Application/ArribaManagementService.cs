@@ -113,14 +113,14 @@ namespace Arriba.Server.Application
             return ArribaResponse.Ok("All Tables unloaded");
         }
 
-        public IResponse Drop(IRequestContext ctx, string tableName)
+        public IResponse Drop(ITelemetry telemetry, string tableName)
         {
             if (!this.Database.TableExists(tableName))
             {
                 return ArribaResponse.NotFound();
             }
 
-            using (ctx.Monitor(MonitorEventLevel.Information, "Drop", type: "Table", identity: tableName))
+            using (telemetry.Monitor(MonitorEventLevel.Information, "Drop", type: "Table", identity: tableName))
             {
                 this.Database.DropTable(tableName);
                 return ArribaResponse.Ok("Table deleted");
@@ -168,7 +168,7 @@ namespace Arriba.Server.Application
             return ArribaResponse.Ok("Security Updated");
         }
 
-        public async Task<IResponse> CreateNew(IRequestContext request, Route routeData)
+        public async Task<IResponse> CreateNew(IRequestContext request, ITelemetry telemetry, Route routeData)
         {
             CreateTableRequest createTable = await request.Request.ReadBodyAsync<CreateTableRequest>();
 
@@ -183,7 +183,7 @@ namespace Arriba.Server.Application
                 return ArribaResponse.BadRequest("Table already exists");
             }
 
-            using (request.Monitor(MonitorEventLevel.Information, "Create", type: "Table", identity: createTable.TableName, detail: createTable))
+            using (telemetry.Monitor(MonitorEventLevel.Information, "Create", type: "Table", identity: createTable.TableName, detail: createTable))
             {
                 var table = this.Database.AddTable(createTable.TableName, createTable.ItemCountLimit);
 
@@ -207,9 +207,9 @@ namespace Arriba.Server.Application
             return ArribaResponse.Ok(null);
         }
 
-        public async Task<IResponse> AddColumns(IRequestContext request, string tableName)
+        public async Task<IResponse> AddColumns(IRequestContext request, ITelemetry telemetry, string tableName)
         {
-            using (request.Monitor(MonitorEventLevel.Information, "AddColumn", type: "Table", identity: tableName))
+            using (telemetry.Monitor(MonitorEventLevel.Information, "AddColumn", type: "Table", identity: tableName))
             {
                 if (!Database.TableExists(tableName))
                 {
@@ -225,28 +225,28 @@ namespace Arriba.Server.Application
             }
         }
 
-        public IResponse Reload(IRequestContext request, string tableName)
+        public IResponse Reload(ITelemetry telemetry, string tableName)
         {
             if (!this.Database.TableExists(tableName))
             {
                 return ArribaResponse.NotFound("Table not found to reload");
             }
 
-            using (request.Monitor(MonitorEventLevel.Information, "Reload", type: "Table", identity: tableName))
+            using (telemetry.Monitor(MonitorEventLevel.Information, "Reload", type: "Table", identity: tableName))
             {
                 this.Database.ReloadTable(tableName);
                 return ArribaResponse.Ok("Reloaded");
             }
         }
 
-        public IResponse Save(IRequestContext request, string tableName)
+        public IResponse Save(ITelemetry telemetry, string tableName)
         {
             if (!this.Database.TableExists(tableName))
             {
                 return ArribaResponse.NotFound("Table not found to save");
             }
 
-            using (request.Monitor(MonitorEventLevel.Information, "Save", type: "Table", identity: tableName))
+            using (telemetry.Monitor(MonitorEventLevel.Information, "Save", type: "Table", identity: tableName))
             {
                 Table t = this.Database[tableName];
 
@@ -266,7 +266,7 @@ namespace Arriba.Server.Application
             }
         }
 
-        public async Task<IResponse> Revoke(IRequestContext request, Route route, string tableName)
+        public async Task<IResponse> Revoke(IRequestContext request, Route route, ITelemetry telemetry, string tableName)
         {
             if (!this.Database.TableExists(tableName))
             {
@@ -285,7 +285,7 @@ namespace Arriba.Server.Application
                 return ArribaResponse.BadRequest("Unknown permission scope {0}", route["scope"]);
             }
 
-            using (request.Monitor(MonitorEventLevel.Information, "RevokePermission", type: "Table", identity: tableName, detail: new { Scope = scope, Identity = identity }))
+            using (telemetry.Monitor(MonitorEventLevel.Information, "RevokePermission", type: "Table", identity: tableName, detail: new { Scope = scope, Identity = identity }))
             {
                 SecurityPermissions security = this.Database.Security(tableName);
                 security.Revoke(identity, scope);
