@@ -110,6 +110,11 @@ namespace Arriba.Server.Application
         private IResponse GetTableInformation(IRequestContext ctx, Route route)
         {
             var tableName = GetAndValidateTableName(route);
+            return GetTableInformation(ctx, tableName);
+        }
+
+        private IResponse GetTableInformation(IRequestContext ctx, string tableName)
+        {
             if (!this.Database.TableExists(tableName))
             {
                 return ArribaResponse.NotFound();
@@ -155,6 +160,11 @@ namespace Arriba.Server.Application
         private IResponse UnloadTable(IRequestContext ctx, Route route)
         {
             var tableName = GetAndValidateTableName(route);
+            return UnloadTable(ctx, tableName);
+        }
+
+        private IResponse UnloadTable(IRequestContext ctx, string tableName)
+        {
             this.Database.UnloadTable(tableName);
             return ArribaResponse.Ok($"Table unloaded");
         }
@@ -168,7 +178,11 @@ namespace Arriba.Server.Application
         private IResponse Drop(IRequestContext ctx, Route route)
         {
             var tableName = GetAndValidateTableName(route);
+            return Drop(ctx, tableName);
+        }
 
+        private IResponse Drop(IRequestContext ctx, string tableName)
+        {
             if (!this.Database.TableExists(tableName))
             {
                 return ArribaResponse.NotFound();
@@ -181,9 +195,15 @@ namespace Arriba.Server.Application
             }
         }
 
+
         private IResponse GetTablePermissions(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
+            return GetTablePermissions(request, tableName);
+        }
+
+        private IResponse GetTablePermissions(IRequestContext request, string tableName)
+        {
             if (!this.Database.TableExists(tableName))
             {
                 return ArribaResponse.NotFound("Table not found to return security for.");
@@ -197,6 +217,11 @@ namespace Arriba.Server.Application
         private IResponse DeleteRows(IRequestContext ctx, Route route)
         {
             string tableName = GetAndValidateTableName(route);
+            return DeleteRows(ctx, tableName);
+        }
+
+        private IResponse DeleteRows(IRequestContext ctx, string tableName)
+        {
             IExpression query = SelectQuery.ParseWhere(ctx.Request.ResourceParameters["q"]);
 
             // Run server correctors
@@ -215,8 +240,13 @@ namespace Arriba.Server.Application
 
         private async Task<IResponse> SetTablePermissions(IRequestContext request, Route route)
         {
-            SecurityPermissions security = await request.Request.ReadBodyAsync<SecurityPermissions>();
             string tableName = GetAndValidateTableName(route);
+            return await SetTablePermissions(request, tableName);
+        }
+
+        private async Task<IResponse> SetTablePermissions(IRequestContext request, string tableName)
+        {
+            SecurityPermissions security = await request.Request.ReadBodyAsync<SecurityPermissions>();
 
             if (!this.Database.TableExists(tableName))
             {
@@ -275,7 +305,11 @@ namespace Arriba.Server.Application
         private async Task<IResponse> AddColumns(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
+            return await AddColumns(request, tableName);
+        }
 
+        private async Task<IResponse> AddColumns(IRequestContext request, string tableName)
+        {
             using (request.Monitor(MonitorEventLevel.Information, "AddColumn", type: "Table", identity: tableName))
             {
                 if (!Database.TableExists(tableName))
@@ -298,6 +332,11 @@ namespace Arriba.Server.Application
         private IResponse Reload(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
+            return Reload(request, tableName);
+        }
+
+        private IResponse Reload(IRequestContext request, string tableName)
+        {
             if (!this.Database.TableExists(tableName))
             {
                 return ArribaResponse.NotFound("Table not found to reload");
@@ -316,6 +355,11 @@ namespace Arriba.Server.Application
         private IResponse Save(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
+            return Save(request, tableName);
+        }
+
+        private IResponse Save(IRequestContext request, string tableName)
+        {
             if (!this.Database.TableExists(tableName))
             {
                 return ArribaResponse.NotFound("Table not found to save");
@@ -347,6 +391,11 @@ namespace Arriba.Server.Application
         private async Task<IResponse> Revoke(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
+            return await Revoke(request,route, tableName);
+        }
+
+        private async Task<IResponse> Revoke(IRequestContext request, Route route, string tableName)
+        {
             if (!this.Database.TableExists(tableName))
             {
                 return ArribaResponse.NotFound("Table not found to revoke permission on.");
@@ -382,6 +431,11 @@ namespace Arriba.Server.Application
         private async Task<IResponse> Grant(IRequestContext request, Route route)
         {
             string tableName = GetAndValidateTableName(route);
+            return await Grant(request, route, tableName);
+        }
+
+        private async Task<IResponse> Grant(IRequestContext request, Route route, string tableName)
+        {
             if (!this.Database.TableExists(tableName))
             {
                 return ArribaResponse.NotFound("Table not found to grant permission on.");
