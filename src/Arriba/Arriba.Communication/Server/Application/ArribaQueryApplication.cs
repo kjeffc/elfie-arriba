@@ -90,7 +90,7 @@ namespace Arriba.Server
             using (ctx.Monitor(MonitorEventLevel.Information, "Select", type: "Table", identity: tableName, detail: query.Where.ToString()))
             {
                 // Run the query
-                result = this.Database.Query(wrappedQuery, (si) => this.IsInIdentity(ctx.Request.User, si));
+                result = this.Database.Query(wrappedQuery, (si) => Authority.IsInIdentity(ctx.Request.User, si));
             }
 
             // Canonicalize column names (if query successful)
@@ -346,12 +346,12 @@ namespace Arriba.Server
 
                 foreach (string tableName in this.Database.TableNames)
                 {
-                    if (this.HasTableAccess(tableName, user, PermissionScope.Reader))
+                    if (Authority.HasTableAccess(tableName, user, PermissionScope.Reader))
                     {
                         query.TableName = tableName;
                         query.Where = defaultWhere;
 
-                        AggregationResult tableCount = this.Database.Query(query, (si) => this.IsInIdentity(ctx.Request.User, si));
+                        AggregationResult tableCount = this.Database.Query(query, (si) => Authority.IsInIdentity(ctx.Request.User, si));
 
                         if (!tableCount.Details.Succeeded || tableCount.Values == null)
                         {
@@ -397,7 +397,7 @@ namespace Arriba.Server
                 List<Table> tables = new List<Table>();
                 foreach (string tableName in this.Database.TableNames)
                 {
-                    if (this.HasTableAccess(tableName, user, PermissionScope.Reader))
+                    if (Authority.HasTableAccess(tableName, user, PermissionScope.Reader))
                     {
                         if (String.IsNullOrEmpty(selectedTable) || selectedTable.Equals(tableName, StringComparison.OrdinalIgnoreCase))
                         {
@@ -436,7 +436,7 @@ namespace Arriba.Server
             // Execute and return results for the query
             using (ctx.Monitor(MonitorEventLevel.Information, query.GetType().Name, type: "Table", identity: tableName, detail: query.Where.ToString()))
             {
-                T result = this.Database.Query(wrappedQuery, (si) => this.IsInIdentity(ctx.Request.User, si));
+                T result = this.Database.Query(wrappedQuery, (si) => Authority.IsInIdentity(ctx.Request.User, si));
                 return ArribaResponse.Ok(result);
             }
         }

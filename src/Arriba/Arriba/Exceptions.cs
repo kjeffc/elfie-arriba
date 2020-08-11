@@ -51,11 +51,29 @@ namespace Arriba
     }
 
     [Serializable]
+    public class TableAlreadyExistsException : ArribaException
+    {
+        public TableAlreadyExistsException() { }
+        public TableAlreadyExistsException(string message) : base(message) { }
+        public TableAlreadyExistsException(string message, Exception inner) : base(message, inner) { }
+        protected TableAlreadyExistsException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    }
+
+    [Serializable]
     public class ColumnNotFoundException : ArribaException
     {
         public ColumnNotFoundException() { }
         public ColumnNotFoundException(string message) : base(message) { }
         public ColumnNotFoundException(string message, Exception inner) : base(message, inner) { }
         protected ColumnNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    }
+
+    [Serializable]
+    public class ArribaAccessForbiddenException : ArribaException
+    {
+        public ArribaAccessForbiddenException() { }
+        public ArribaAccessForbiddenException(string message) : base(message) { }
+        public ArribaAccessForbiddenException(string message, Exception inner) : base(message, inner) { }
+        protected ArribaAccessForbiddenException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 }

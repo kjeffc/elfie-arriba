@@ -3,6 +3,7 @@
 
 using System;
 using System.Composition;
+using System.Dynamic;
 using System.Net;
 using System.Security.Principal;
 using System.Threading.Tasks;
@@ -21,7 +22,6 @@ namespace Arriba.Server
     internal abstract class ArribaApplication : RoutedApplication<IResponse>
     {
         protected static readonly ArribaResponse ContinueToNextHandlerResponse = null;
-        private ClaimsAuthenticationService _claimsAuth;
         private ComposedCorrector _correctors;
 
         [ImportingConstructor]
@@ -29,7 +29,7 @@ namespace Arriba.Server
         {
             this.EventSource = EventPublisher.CreateEventSource(this.GetType().Name);
             this.Database = factory.GetDatabase();
-            _claimsAuth = claimsAuth;
+            Authority = new ArribaAuthority(this.Database, claimsAuth);
 
             // Cache correctors which aren't request specific
             // Cache the People table so that it isn't reloaded for every request.
@@ -44,6 +44,8 @@ namespace Arriba.Server
                 return this.GetType().Name;
             }
         }
+
+        protected ArribaAuthority Authority { get; }
 
         protected SecureDatabase Database { get; private set; }
 
@@ -105,7 +107,7 @@ namespace Arriba.Server
             else
             {
                 // Otherwise, check for writer or better permissions at the DB level
-                hasPermission = HasPermission(security, ctx.Request.User, PermissionScope.Writer);
+                hasPermission = Authority.HasPermission(security, ctx.Request.User, PermissionScope.Writer);
             }
 
             if(!hasPermission)
@@ -164,65 +166,13 @@ namespace Arriba.Server
                 return ContinueToNextHandlerResponse;
             }
 
-            if (!HasTableAccess(tableName, currentUser, scope))
+            if (!Authority.HasTableAccess(tableName, currentUser, scope))
             {
                 return ArribaResponse.Forbidden(String.Format("Access to {0} denied for {1}.", tableName, currentUser.Identity.Name));
             }
             else
             {
                 return ContinueToNextHandlerResponse;
-            }
-        }
-
-        protected bool HasTableAccess(string tableName, IPrincipal currentUser, PermissionScope scope)
-        {
-            var security = this.Database.Security(tableName);
-
-            // No security? Allowed.
-            if(!security.HasTableAccessSecurity)
-            {
-                return true;
-            }
-
-            // Otherwise check permissions
-            return HasPermission(security, currentUser, scope);
-        }
-
-        protected bool HasPermission(SecurityPermissions security, IPrincipal currentUser, PermissionScope scope)
-        {
-            // No user identity? Forbidden! 
-            if (currentUser == null || !currentUser.Identity.IsAuthenticated)
-            {
-                return false;
-            }
-
-            // Try user first, cheap check. 
-            if (security.IsIdentityInPermissionScope(IdentityScope.User, currentUser.Identity.Name, scope))
-            {
-                return true;
-            }
-
-            // See if the user is in any allowed groups.
-            foreach (var group in security.GetScopeIdentities(scope, IdentityScope.Group))
-            {
-                if (_claimsAuth.IsUserInGroup(currentUser, group.Name))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        protected bool IsInIdentity(IPrincipal currentUser, SecurityIdentity targetUserOrGroup)
-        {
-            if (targetUserOrGroup.Scope == IdentityScope.User)
-            {
-                return targetUserOrGroup.Name.Equals(currentUser.Identity.Name, StringComparison.OrdinalIgnoreCase);
-            }
-            else
-            {
-                return _claimsAuth.IsUserInGroup(currentUser, targetUserOrGroup.Name);
             }
         }
 

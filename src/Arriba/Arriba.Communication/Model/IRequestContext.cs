@@ -11,7 +11,7 @@ namespace Arriba.Communication
     /// <summary>
     /// Respresents the lifetime of a request including internal processing meta data. 
     /// </summary>
-    public interface IRequestContext
+    public interface IRequestContext : ITelemetry
     {
         /// <summary>
         /// Gets the original request. 
@@ -22,14 +22,5 @@ namespace Arriba.Communication
         /// Gets timing information for the request. 
         /// </summary>
         IDictionary<string, double> TraceTimings { get; }
-
-        /// <summary>
-        /// Begins a monitoring block for the request context. 
-        /// </summary>
-        /// <param name="level">Event Level</param>
-        /// <param name="name">Name of the timing block.</param>
-        /// <param name="detail">Detail message for event.</param>
-        /// <returns>A disposable handle.</returns>
-        IDisposable Monitor(MonitorEventLevel level, string name, string type = null, string identity = null, object detail = null);
     }
 }
