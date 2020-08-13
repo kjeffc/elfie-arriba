@@ -27,6 +27,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arriba.WorkItemCrawler", "T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arriba.Configuration", "Arriba.Configuration\Arriba.Configuration.csproj", "{C49EB60A-7649-4A18-BFDA-DB971E0EBE68}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Adapters", "Adapters", "{F9B80722-DFD9-489A-BE71-E91CF78F5441}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arriba.Adapter.Netwonsoft", "Adapters\Arriba.Adapter.Netwonsoft\Arriba.Adapter.Netwonsoft.csproj", "{23755895-51F7-4C38-8EFD-1AAF2BA4114A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -169,6 +173,18 @@ Global
 		{C49EB60A-7649-4A18-BFDA-DB971E0EBE68}.Release|x64.Build.0 = Release|Any CPU
 		{C49EB60A-7649-4A18-BFDA-DB971E0EBE68}.Release|x86.ActiveCfg = Release|Any CPU
 		{C49EB60A-7649-4A18-BFDA-DB971E0EBE68}.Release|x86.Build.0 = Release|Any CPU
+		{23755895-51F7-4C38-8EFD-1AAF2BA4114A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23755895-51F7-4C38-8EFD-1AAF2BA4114A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23755895-51F7-4C38-8EFD-1AAF2BA4114A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{23755895-51F7-4C38-8EFD-1AAF2BA4114A}.Debug|x64.Build.0 = Debug|Any CPU
+		{23755895-51F7-4C38-8EFD-1AAF2BA4114A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{23755895-51F7-4C38-8EFD-1AAF2BA4114A}.Debug|x86.Build.0 = Debug|Any CPU
+		{23755895-51F7-4C38-8EFD-1AAF2BA4114A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23755895-51F7-4C38-8EFD-1AAF2BA4114A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23755895-51F7-4C38-8EFD-1AAF2BA4114A}.Release|x64.ActiveCfg = Release|Any CPU
+		{23755895-51F7-4C38-8EFD-1AAF2BA4114A}.Release|x64.Build.0 = Release|Any CPU
+		{23755895-51F7-4C38-8EFD-1AAF2BA4114A}.Release|x86.ActiveCfg = Release|Any CPU
+		{23755895-51F7-4C38-8EFD-1AAF2BA4114A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -176,6 +192,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{D264AFC1-C7D7-4585-9FCD-92BED4CD0D28} = {AC459F90-C1BF-4B6A-BEC4-5C19487C3D8B}
 		{20CB1373-01F1-41EF-8A3E-07450C6FFB1E} = {AC459F90-C1BF-4B6A-BEC4-5C19487C3D8B}
+		{23755895-51F7-4C38-8EFD-1AAF2BA4114A} = {F9B80722-DFD9-489A-BE71-E91CF78F5441}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1A13044D-76D1-4136-A0F3-415C5D9FF24F}
