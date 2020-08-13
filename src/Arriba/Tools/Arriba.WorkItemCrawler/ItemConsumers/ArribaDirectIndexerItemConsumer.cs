@@ -6,15 +6,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-
-using Arriba.Diagnostics;
 using Arriba.Model;
 using Arriba.Model.Column;
 using Arriba.Model.Security;
 using Arriba.Serialization;
 using Arriba.Structures;
 
-namespace Arriba.TfsWorkItemCrawler.ItemConsumers
+namespace Arriba.ItemConsumers
 {
     /// <summary>
     ///  An IItemConsumer which indexes the items in an Arriba table using the

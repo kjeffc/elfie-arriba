@@ -1,5 +1,4 @@
 ﻿using Arriba.Configuration;
-using Arriba.TfsWorkItemCrawler;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;

@@ -3,13 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Arriba.Configuration;
 using Arriba.Model.Security;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 
-namespace Arriba.TfsWorkItemCrawler
+namespace Arriba
 {
     public class CrawlerConfiguration : IArribaConfiguration
     {
@@ -120,29 +117,29 @@ namespace Arriba.TfsWorkItemCrawler
 
         public CrawlerConfiguration()
         {
-            this.Owners = new List<string>();
-            this.Writers = new List<string>();
-            this.Readers = new List<string>();
-            this.ColumnsToInclude = new List<string>();
-            this.ColumnsToExclude = new List<string>();
-            this.ColumnMappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            Owners = new List<string>();
+            Writers = new List<string>();
+            Readers = new List<string>();
+            ColumnsToInclude = new List<string>();
+            ColumnsToExclude = new List<string>();
+            ColumnMappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
         public SecurityPermissions LoadPermissions()
         {
             SecurityPermissions result = new SecurityPermissions();
 
-            foreach (SecurityIdentity identity in ParseIdentities(this.Owners))
+            foreach (SecurityIdentity identity in ParseIdentities(Owners))
             {
                 result.Grant(identity, PermissionScope.Owner);
             }
 
-            foreach (SecurityIdentity identity in ParseIdentities(this.Writers))
+            foreach (SecurityIdentity identity in ParseIdentities(Writers))
             {
                 result.Grant(identity, PermissionScope.Writer);
             }
 
-            foreach (SecurityIdentity identity in ParseIdentities(this.Readers))
+            foreach (SecurityIdentity identity in ParseIdentities(Readers))
             {
                 result.Grant(identity, PermissionScope.Reader);
             }
@@ -163,13 +160,13 @@ namespace Arriba.TfsWorkItemCrawler
             }
 
             return result;
-            
+
         }
 
         private static SecurityIdentity ParseIdentity(string identity)
         {
             string[] parts = identity.Split(new char[] { ':' });
-            if (parts.Length != 2) throw new ArgumentException(String.Format(IdentityFormatExceptionFormatString, identity));
+            if (parts.Length != 2) throw new ArgumentException(string.Format(IdentityFormatExceptionFormatString, identity));
 
             switch (parts[0].ToLowerInvariant())
             {
@@ -180,10 +177,10 @@ namespace Arriba.TfsWorkItemCrawler
                 case "group":
                     return SecurityIdentity.Create(IdentityScope.Group, parts[1]);
                 default:
-                    throw new ArgumentException(String.Format(IdentityFormatExceptionFormatString, identity));
+                    throw new ArgumentException(string.Format(IdentityFormatExceptionFormatString, identity));
             }
-        }        
+        }
 
-        
+
     }
 }

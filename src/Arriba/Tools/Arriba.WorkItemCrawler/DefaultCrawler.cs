@@ -7,14 +7,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-
-using Arriba.Diagnostics;
 using Arriba.Extensions;
+using Arriba.ItemConsumers;
+using Arriba.ItemProviders;
 using Arriba.Structures;
-using Arriba.TfsWorkItemCrawler.ItemConsumers;
-using Arriba.TfsWorkItemCrawler.ItemProviders;
 
-namespace Arriba.TfsWorkItemCrawler
+namespace Arriba
 {
     public class DefaultCrawler
     {
@@ -35,11 +33,11 @@ namespace Arriba.TfsWorkItemCrawler
 
         public DefaultCrawler(CrawlerConfiguration config, IEnumerable<string> columnNames, string configurationName, bool rebuild)
         {
-            this.ConfigurationName = configurationName;
-            this.Configuration = config;
-            this.Rebuild = rebuild;
+            ConfigurationName = configurationName;
+            Configuration = config;
+            Rebuild = rebuild;
 
-            this.ColumnNames = columnNames;
+            ColumnNames = columnNames;
         }
 
         public async Task Crawl(IItemProvider provider, IItemConsumer consumer)
@@ -57,14 +55,14 @@ namespace Arriba.TfsWorkItemCrawler
 
             try
             {
-                DateTimeOffset previousLastChangedItem = ItemProviderUtilities.LoadLastCutoff(this.Configuration.ArribaTable, this.ConfigurationName, this.Rebuild);
+                DateTimeOffset previousLastChangedItem = ItemProviderUtilities.LoadLastCutoff(Configuration.ArribaTable, ConfigurationName, Rebuild);
                 DateTimeOffset now = DateTimeOffset.UtcNow;
                 lastChangedItemAppended = previousLastChangedItem;
 
                 Trace.WriteLine(string.Format("Last Updated item was updated at '{0}'...", previousLastChangedItem));
 
                 // For clean crawl, get more than a day at a time until first items found
-                int intervalDays = ((now - previousLastChangedItem).TotalDays > 365 ? 365 : 1);
+                int intervalDays = (now - previousLastChangedItem).TotalDays > 365 ? 365 : 1;
 
                 DateTimeOffset end;
                 for (DateTimeOffset start = previousLastChangedItem; start <= now; start = end)
@@ -116,12 +114,12 @@ namespace Arriba.TfsWorkItemCrawler
                                     {
                                         // Read the next page of items
                                         Console.Write("[");
-                                        blocks[relativeIndex] = await provider.GetItemBlockAsync(pages[nextPageIndex + relativeIndex], this.ColumnNames);
+                                        blocks[relativeIndex] = await provider.GetItemBlockAsync(pages[nextPageIndex + relativeIndex], ColumnNames);
                                     }
                                     catch (Exception e)
                                     {
                                         exceptionCount++;
-                                        Trace.WriteLine(string.Format("Exception when fetching {0} items. Error: {1}\r\nItem IDs: {2}", ConfigurationName, e.ToString(), String.Join(", ", pages[nextPageIndex + relativeIndex].Select(r => r.ID))));
+                                        Trace.WriteLine(string.Format("Exception when fetching {0} items. Error: {1}\r\nItem IDs: {2}", ConfigurationName, e.ToString(), string.Join(", ", pages[nextPageIndex + relativeIndex].Select(r => r.ID))));
                                         if (exceptionCount > 10) throw;
                                     }
                                 });
@@ -154,7 +152,7 @@ namespace Arriba.TfsWorkItemCrawler
                                 catch (Exception e)
                                 {
                                     exceptionCount++;
-                                    Trace.WriteLine(string.Format("Exception when writing {0} items. Error: {1}\r\nItem IDs: {2}", ConfigurationName, e.ToString(), String.Join(", ", pages[nextPageIndex + relativeIndex].Select(r => r.ID))));
+                                    Trace.WriteLine(string.Format("Exception when writing {0} items. Error: {1}\r\nItem IDs: {2}", ConfigurationName, e.ToString(), string.Join(", ", pages[nextPageIndex + relativeIndex].Select(r => r.ID))));
                                     if (exceptionCount > 10) throw;
                                 }
                             }
@@ -181,7 +179,7 @@ namespace Arriba.TfsWorkItemCrawler
                         }
                         catch (Exception)
                         {
-                            Trace.WriteLine(String.Format("Crawler Failed. At {1:u}, {2:n0} items, {3} read, {4} write, {5} save for '{0}'.", this.ConfigurationName, DateTime.Now, itemCount, readWatch.Elapsed.ToFriendlyString(), writeWatch.Elapsed.ToFriendlyString(), saveWatch.Elapsed.ToFriendlyString()));
+                            Trace.WriteLine(string.Format("Crawler Failed. At {1:u}, {2:n0} items, {3} read, {4} write, {5} save for '{0}'.", ConfigurationName, DateTime.Now, itemCount, readWatch.Elapsed.ToFriendlyString(), writeWatch.Elapsed.ToFriendlyString(), saveWatch.Elapsed.ToFriendlyString()));
                             throw;
                         }
                     }
@@ -214,7 +212,7 @@ namespace Arriba.TfsWorkItemCrawler
                 Console.WriteLine();
 
                 // Old tracing logic
-                Trace.WriteLine(String.Format("Crawler Done. At {1:u}, {2:n0} items, {3} read, {4} write, {5} save for '{0}'.", this.ConfigurationName, DateTime.Now, itemCount, readWatch.Elapsed.ToFriendlyString(), writeWatch.Elapsed.ToFriendlyString(), saveWatch.Elapsed.ToFriendlyString()));
+                Trace.WriteLine(string.Format("Crawler Done. At {1:u}, {2:n0} items, {3} read, {4} write, {5} save for '{0}'.", ConfigurationName, DateTime.Now, itemCount, readWatch.Elapsed.ToFriendlyString(), writeWatch.Elapsed.ToFriendlyString(), saveWatch.Elapsed.ToFriendlyString()));
             }
         }
 
@@ -228,7 +226,7 @@ namespace Arriba.TfsWorkItemCrawler
             Trace.WriteLine("Save Complete.");
 
             // Record the new last cutoff written
-            ItemProviderUtilities.SaveLastCutoff(this.Configuration.ArribaTable, this.ConfigurationName, lastCutoffWritten);
+            ItemProviderUtilities.SaveLastCutoff(Configuration.ArribaTable, ConfigurationName, lastCutoffWritten);
         }
     }
 }
