@@ -227,7 +227,7 @@ namespace Arriba.Test.Csv
 
             using (StreamWriter writer = new StreamWriter(ms, Encoding.UTF8, 1024, true))
             {
-                foreach (var line in content.Split(Environment.NewLine))
+                foreach (var line in content.Replace("\r\n", "\n").Split("\n"))
                 {
                     var finalLine = line.Trim();
 
