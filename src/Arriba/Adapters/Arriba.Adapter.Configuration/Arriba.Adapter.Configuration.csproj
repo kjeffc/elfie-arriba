@@ -14,6 +14,6 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.5" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Arriba\Arriba.csproj" />
+    <ProjectReference Include="..\..\Arriba\Arriba.csproj" />
   </ItemGroup>
 </Project>

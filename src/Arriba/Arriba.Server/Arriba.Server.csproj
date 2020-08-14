@@ -26,6 +26,7 @@
         <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
     </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="..\Adapters\Arriba.Adapter.Configuration\Arriba.Adapter.Configuration.csproj" />
         <ProjectReference Include="..\Arriba.Client\Arriba.Client.csproj">
             <Project>{35e3e90c-f12e-4eb5-9161-a78ed5ca950f}</Project>
             <Name>Arriba.Client</Name>
@@ -34,7 +35,6 @@
             <Project>{7dcfe5a1-cdbf-426f-bd57-225443651238}</Project>
             <Name>Arriba.Communication</Name>
         </ProjectReference>
-        <ProjectReference Include="..\Arriba.Configuration\Arriba.Configuration.csproj" />
         <ProjectReference Include="..\Arriba\Arriba.csproj">
             <Project>{d89b4a01-f637-4147-9737-91a327a9da3f}</Project>
             <Name>Arriba</Name>
