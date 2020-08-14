@@ -46,7 +46,7 @@ namespace Arriba.Server.Hosting
                 .Shared();
 
             //                       Arriba.dll              Arriba.Client                  Arriba.Communication           Arriba.Server
-            var assemblies = new[] { typeof(Table).Assembly, typeof(ArribaClient).Assembly, typeof(IApplication).Assembly, typeof(Host).Assembly };
+            var assemblies = new[] { typeof(Table).Assembly, typeof(ArribaClient).Assembly, typeof(IApplication).Assembly, typeof(Host).Assembly, typeof(ArribaConvert).Assembly };
 
             _configuration = new ContainerConfiguration().WithAssemblies(assemblies.Distinct(), conventions);
         }
