@@ -6,10 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-
+using Arriba.Serialization;
 using Arriba.Server;
-
-using Newtonsoft.Json;
 
 namespace Arriba.Client
 {
@@ -59,7 +57,7 @@ namespace Arriba.Client
                         }
                     }
                 }
-                catch (JsonSerializationException)
+                catch (ArribaSerializationException)
                 { }
             }
 

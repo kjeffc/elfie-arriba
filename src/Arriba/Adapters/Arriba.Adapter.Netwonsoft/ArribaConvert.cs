@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Arriba.Serialization;
+using Newtonsoft.Json;
 
 namespace Arriba
 {
@@ -13,12 +14,26 @@ namespace Arriba
 
         public static string ToJson(object content)
         {
-            return JsonConvert.SerializeObject(content, _settings);
+            try
+            {
+                return JsonConvert.SerializeObject(content, _settings);
+            }
+            catch (JsonSerializationException ex)
+            {
+                throw new ArribaSerializationException("Object serialization failed", ex);
+            }
         }
 
         public static T FromJson<T>(string content)
         {
-            return JsonConvert.DeserializeObject<T>(content, _settings);
+            try
+            {
+                return JsonConvert.DeserializeObject<T>(content, _settings);
+            }
+            catch (JsonSerializationException ex)
+            {
+                throw new ArribaSerializationException("Object deserialization failed", ex);
+            }
         }
     }
 }
