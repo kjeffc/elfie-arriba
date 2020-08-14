@@ -4,7 +4,7 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
-        <RootNamespace>Arriba.Server</RootNamespace>
+        <RootNamespace>Arriba</RootNamespace>
         <AssemblyName>Arriba.Server</AssemblyName>
         <Prefer32Bit>false</Prefer32Bit>
     </PropertyGroup>

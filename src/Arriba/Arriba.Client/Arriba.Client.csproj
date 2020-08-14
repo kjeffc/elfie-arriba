@@ -4,7 +4,7 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <RootNamespace>Arriba.Client</RootNamespace>
+        <RootNamespace>Arriba</RootNamespace>
         <AssemblyName>Arriba.Client</AssemblyName>
     </PropertyGroup>
 
