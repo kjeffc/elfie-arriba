@@ -1,9 +1,11 @@
-﻿using System.Composition;
+﻿using System.Collections.Generic;
+using System.Composition;
 using Arriba.Caching;
+using Arriba.Communication;
 using Arriba.Communication.Application;
-using Arriba.Communication.Model;
 using Arriba.Communication.Server.Application;
 using Arriba.Model;
+using Arriba.Model.Correctors;
 using Arriba.Server;
 using Arriba.Server.Application;
 using Arriba.Server.Authentication;
@@ -25,7 +27,7 @@ namespace Arriba.Composition
     class ClaimsAuthenticationServiceExport : ClaimsAuthenticationService
     {
         [ImportingConstructor]
-        public ClaimsAuthenticationServiceExport(IObjectCacheFactory factory) 
+        public ClaimsAuthenticationServiceExport(IObjectCacheFactory factory)
             : base(factory)
         {
         }
@@ -35,8 +37,8 @@ namespace Arriba.Composition
     class ArribaManagementServiceExport : ArribaManagementService
     {
         [ImportingConstructor]
-        public ArribaManagementServiceExport(SecureDatabase secureDatabase, CompositionComposedCorrectors composedCorrector, ClaimsAuthenticationService claims)
-            : base(secureDatabase, composedCorrector, claims)
+        public ArribaManagementServiceExport(SecureDatabase secureDatabase, ICorrector corrector, ClaimsAuthenticationService claims)
+            : base(secureDatabase, corrector, claims)
         {
         }
     }
@@ -63,5 +65,33 @@ namespace Arriba.Composition
     [Export(typeof(IObjectCacheFactory))]
     internal class ObjectCacheFactory : MemoryCacheFactory
     {
+    }
+
+    [Export(typeof(IApplication))]
+    internal class RoutedApplicationHandlerExport : RoutedApplicationHandler
+    {
+        [ImportingConstructor]
+        public RoutedApplicationHandlerExport([ImportMany] IEnumerable<IRoutedApplication> routes) :
+            base(routes)
+        { }
+    }
+
+    [Export(typeof(SecureDatabase)), Shared]
+    internal class SecureDatabaseExport : SecureDatabase
+    {
+    }
+
+    [Export(typeof(DatabaseFactory)), Shared]
+    internal class DatabaseFactoryExport : DatabaseFactory
+    {
+    }
+
+    [Export(typeof(ICorrector)), Shared]
+    public class ComposedCorrectorExport : ComposedCorrector
+    {
+        [ImportingConstructor]
+        public ComposedCorrectorExport() : base(new TodayCorrector())
+        {
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Arriba.Server;
+﻿using Arriba.Communication;
+using Arriba.Server;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Arriba.Test.Composition
@@ -9,10 +10,10 @@ namespace Arriba.Test.Composition
         [TestMethod]
         public void VerifiedApplicationServerComposition()
         {
-            var host = new Arriba.Server.Hosting.Host();
+            var host = new Arriba.Composition.Host();
             host.Compose();
 
-            var server = host.GetService<ComposedApplicationServer>();
+            var server = host.GetService<ApplicationServer>();
             Assert.IsNotNull(server);
         }
     }

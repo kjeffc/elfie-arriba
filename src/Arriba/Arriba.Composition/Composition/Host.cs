@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Composition;
 using System.Composition.Convention;
 using System.Composition.Hosting;
 using System.Linq;
@@ -14,7 +13,7 @@ using Arriba.Model;
 
 using Newtonsoft.Json;
 
-namespace Arriba.Server.Hosting
+namespace Arriba.Composition
 {
     public class Host : IDisposable
     {

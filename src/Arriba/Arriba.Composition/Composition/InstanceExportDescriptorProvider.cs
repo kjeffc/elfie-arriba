@@ -1,13 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Arriba.ParametersCheckers;
 using System;
 using System.Collections.Generic;
 using System.Composition.Hosting.Core;
-using System.Linq;
+using Arriba.ParametersCheckers;
 
-namespace Arriba.Server.Hosting
+namespace Arriba.Composition
 {
     /// <summary>
     /// Export provider for single well known instances. 

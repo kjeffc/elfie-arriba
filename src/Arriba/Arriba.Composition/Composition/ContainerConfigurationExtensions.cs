@@ -4,11 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Composition.Hosting;
-using System.Composition.Hosting.Core;
-using System.Linq;
 
-namespace Arriba.Server.Hosting
-{
+namespace Arriba.Composition { 
     /// <summary>
     /// Extension methods for Composition.
     /// </summary>

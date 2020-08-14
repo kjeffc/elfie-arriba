@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Principal;
-using Arriba.Communication.Model;
 using Arriba.Communication.Server.Authorization;
 using Arriba.Model;
 using Arriba.Model.Column;
@@ -18,9 +17,9 @@ namespace Arriba.Communication.Server.Application
     {
         private readonly SecureDatabase _database;
         private readonly IArribaAuthorization _arribaAuthorization;
-        private readonly ComposedCorrector _correctors;
+        private readonly ICorrector _correctors;
 
-        public ArribaManagementService(SecureDatabase secureDatabase, CompositionComposedCorrectors composedCorrector, ClaimsAuthenticationService claims)
+        public ArribaManagementService(SecureDatabase secureDatabase, ICorrector composedCorrector, ClaimsAuthenticationService claims)
         {
             _database = secureDatabase;
             _arribaAuthorization = new ArribaAuthorization(_database, claims);

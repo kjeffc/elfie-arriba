@@ -3,28 +3,28 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Arriba.Communication;
+using Arriba.Composition;
 
 namespace Arriba.Server.Owin
 {
-    using Arriba.Communication;
-    using Arriba.Server.Hosting;
-    using System.IO;
     using AppFunc = Func<IDictionary<string, object>, Task>;
 
     public class ArribaOwinHost
     {
         private Host _arribaHost;
         private AppFunc _next;
-        private ComposedApplicationServer _server;
+        private ApplicationServer _server;
         private IRequestHandler _handler;
 
         public ArribaOwinHost(AppFunc next, Host arribaHost)
         {
             _next = next;
             _arribaHost = arribaHost;
-            _server = arribaHost.GetService<ComposedApplicationServer>();
+            _server = arribaHost.GetService<ApplicationServer>();
             _handler = _server as IRequestHandler;
         }
 

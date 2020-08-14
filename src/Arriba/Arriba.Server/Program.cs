@@ -136,10 +136,10 @@ namespace Arriba.Server
 
             private async Task HandleArribaRequest(HttpContext context)
             {
-                var host = new Arriba.Server.Hosting.Host();
+                var host = new Arriba.Composition.Host();
                 host.Compose();
 
-                var server = host.GetService<ComposedApplicationServer>();
+                var server = host.GetService<ApplicationServer>();
                 var request = new ArribaHttpContextRequest(context, server.ReaderWriter);
                 var response = await server.HandleAsync(request, false);
                 await Write(request, response, server.ReaderWriter, context);

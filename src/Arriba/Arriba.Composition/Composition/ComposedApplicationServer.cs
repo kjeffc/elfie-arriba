@@ -8,12 +8,12 @@ using System.Linq;
 
 using Arriba.Communication;
 
-namespace Arriba.Server
+namespace Arriba.Composition
 {
     /// <summary>
     /// Represents an application server that fulfills its dependnecies via composition.
     /// </summary>
-    [Export(typeof(ComposedApplicationServer)), Shared]
+    [Export(typeof(ApplicationServer)), Shared]
     public class ComposedApplicationServer : ApplicationServer
     {
         [ImportingConstructor]

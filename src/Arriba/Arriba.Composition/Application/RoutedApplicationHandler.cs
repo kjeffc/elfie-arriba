@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,14 +11,12 @@ namespace Arriba.Communication.Application
     /// <summary>
     /// Application implementation that delegates to IRoutedApplication implementations. 
     /// </summary>
-    [Export(typeof(IApplication))]
     internal class RoutedApplicationHandler : IApplication
     {
         private Dictionary<RequestVerb, IRouteHandler[]> _routeLookup = new Dictionary<RequestVerb, IRouteHandler[]>();
         private List<IRoutedApplication> _apps = new List<IRoutedApplication>();
 
-        [ImportingConstructor]
-        public RoutedApplicationHandler([ImportMany] IEnumerable<IRoutedApplication> routes)
+        public RoutedApplicationHandler(IEnumerable<IRoutedApplication> routes)
         {
             _apps.AddRange(routes);
 
