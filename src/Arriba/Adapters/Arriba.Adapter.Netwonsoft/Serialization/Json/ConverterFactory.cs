@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Arriba.Client.Serialization.Json
 {
@@ -13,6 +14,7 @@ namespace Arriba.Client.Serialization.Json
         {
             List<JsonConverter> converters = new List<JsonConverter>();
 
+            converters.Add(new StringEnumConverter());
             converters.Add(new DataBlockJsonConverter());
             converters.Add(new ColumnDetailsJsonConverter());
             converters.Add(new ValueJsonConverter());

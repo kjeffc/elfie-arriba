@@ -14,8 +14,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -139,7 +137,6 @@ namespace Arriba.Server
             private async Task HandleArribaRequest(HttpContext context)
             {
                 var host = new Arriba.Server.Hosting.Host();
-                host.Add<JsonConverter>(new StringEnumConverter());
                 host.Compose();
 
                 var server = host.GetService<ComposedApplicationServer>();
