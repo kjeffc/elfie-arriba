@@ -15,10 +15,69 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - base
+    environment:
+      CRAWLER_DISABLED: 1
+  crawl-org:
+    image: ericmaino/elfie-arriba:crawler-latest
+    depends_on:
+      - crawler
     volumes:
       - arriba:/Arriba/DiskCache
     environment:
       ARRIBA__AZPAT: ${AZPAT}
+      ARRIBA__ARRIBATABLE: "Organizations"
+      ARRIBA__itemDatabaseName: "csefy19"
+      ARRIBA__ITEMPROJECT: "Organizations"
+      ARRIBA__WORKITEMTYPES__0: "Organization"
+  crawl-eng:
+    image: ericmaino/elfie-arriba:crawler-latest
+    depends_on:
+      - crawler
+    volumes:
+      - arriba:/Arriba/DiskCache
+    environment:
+      ARRIBA__AZPAT: ${AZPAT}
+      ARRIBA__ARRIBATABLE: "Engagements"
+      ARRIBA__itemDatabaseName: "csefy19"
+      ARRIBA__ITEMPROJECT: "CSEng"
+      ARRIBA__WORKITEMTYPES__0: "Engagement"
+  crawl-feedback:
+    image: ericmaino/elfie-arriba:crawler-latest
+    depends_on:
+      - crawler
+    volumes:
+      - arriba:/Arriba/DiskCache
+    environment:
+      ARRIBA__AZPAT: ${AZPAT}
+      ARRIBA__ARRIBATABLE: "EngineeringFeedback"
+      ARRIBA__itemDatabaseName: "csefy19"
+      ARRIBA__ITEMPROJECT: "CSE Feedback"
+      ARRIBA__WORKITEMTYPES__0: "Engineering Feedback"
+      ARRIBA__WORKITEMTYPES__1: "Program Feedback"
+  crawl-activities:
+    image: ericmaino/elfie-arriba:crawler-latest
+    depends_on:
+      - crawler
+    volumes:
+      - arriba:/Arriba/DiskCache
+    environment:
+      ARRIBA__AZPAT: ${AZPAT}
+      ARRIBA__ARRIBATABLE: "Activities"
+      ARRIBA__itemDatabaseName: "csefy19"
+      ARRIBA__ITEMPROJECT: "CSEng"
+      ARRIBA__WORKITEMTYPES__0: "Activity"
+  crawl-requests:
+    image: ericmaino/elfie-arriba:crawler-latest
+    depends_on:
+      - crawler
+    volumes:
+      - arriba:/Arriba/DiskCache
+    environment:
+      ARRIBA__AZPAT: ${AZPAT}
+      ARRIBA__ARRIBATABLE: "ResourceRequests"
+      ARRIBA__itemDatabaseName: "csefy19"
+      ARRIBA__ITEMPROJECT: "CSEng"
+      ARRIBA__WORKITEMTYPES__0: "Resource Request"
   server:
     image: ericmaino/elfie-arriba:server-latest
     build: 
@@ -31,7 +90,7 @@ services:
     environment:
       ARRIBASERVER__OAUTHCONFIG__APPSECRET: ${APPSECRET}
   web:
-    image: ericmaino/elfie-arriba:web-latest
+    image: ericmaino/elfie-arriba:web-cse
     build: 
       context: .docker/WebUI
       dockerfile: Dockerfile
