@@ -35,7 +35,7 @@ namespace Arriba.Server
             this.Database = factory.GetDatabase();
             _claimsAuth = claimsAuth;
 
-            _arribaAuthorization = new ArribaAuthorization(this.Database);
+            _arribaAuthorization = new ArribaAuthorization(this.Database, claimsAuth);
 
             // Cache correctors which aren't request specific
             // Cache the People table so that it isn't reloaded for every request.

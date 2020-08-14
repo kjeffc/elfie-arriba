@@ -1,4 +1,5 @@
-﻿using Arriba.Model;
+﻿using Arriba.Caching;
+using Arriba.Model;
 using Arriba.Model.Security;
 using Arriba.ParametersCheckers;
 using Arriba.Server.Authentication;
@@ -12,10 +13,10 @@ namespace Arriba.Communication.Server.Authorization
         private readonly SecureDatabase _database;
         private readonly ClaimsAuthenticationService _claimsAuth;
 
-        public ArribaAuthorization(SecureDatabase database)
+        public ArribaAuthorization(SecureDatabase database, ClaimsAuthenticationService claims)
         {
             _database = database;
-            _claimsAuth = new ClaimsAuthenticationService();
+            _claimsAuth = claims;
         }
 
         public bool HasTableAccess(string tableName, IPrincipal currentUser, PermissionScope scope)

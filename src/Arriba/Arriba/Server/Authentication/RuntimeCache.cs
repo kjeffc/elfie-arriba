@@ -2,21 +2,20 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Runtime.Caching;
+using Arriba.Caching;
 
 namespace Arriba.Server.Authentication
 {
     /// <summary>
     /// Simple runtime object cache. 
     /// </summary>
-    internal class RuntimeCache : IDisposable
+    public class RuntimeCache : IDisposable
     {
-        private MemoryCache _cache;
-        private TimeSpan _maximumTimeToLive = TimeSpan.FromDays(180);
+        private IObjectCache _cache;
 
-        public RuntimeCache(string name)
+        public RuntimeCache(IObjectCache cache)
         {
-            _cache = new MemoryCache(name);
+            _cache = cache;
         }
 
         /// <summary>
@@ -34,7 +33,7 @@ namespace Arriba.Server.Authentication
             if (value == null)
             {
                 value = production();
-                _cache.Add(key, value, this.CreatePolicyForValue(value, timeToLive));
+                _cache.Add(key, value, timeToLive);
             }
 
             return (T)value;
@@ -46,32 +45,9 @@ namespace Arriba.Server.Authentication
         /// <typeparam name="T"></typeparam>
         /// <param name="key">Cache item key.</param>
         /// <returns>Cache item.</returns>
-        public T Remove<T>(string key)
+        public object Remove(string key)
         {
-            return (T)_cache.Remove(key);
-        }
-
-        /// <summary>
-        /// Creates a sliding expiration policy for the specified cache item value. 
-        /// </summary>
-        /// <param name="value">Value to cache.</param>
-        /// <param name="timeToLive">Time to live for the value.</param>
-        /// <returns>Cache item policy.</returns>
-        private CacheItemPolicy CreatePolicyForValue(object value, TimeSpan? timeToLive)
-        {
-            var policy = new CacheItemPolicy();
-            policy.SlidingExpiration = timeToLive ?? _maximumTimeToLive;
-
-            // If the value is IDisposable, dispose of the item when it removed from the cache. 
-            if (value is IDisposable)
-            {
-                policy.RemovedCallback = (args) =>
-                    {
-                        ((IDisposable)args.CacheItem.Value).Dispose();
-                    };
-            }
-
-            return policy;
+            return _cache.Remove(key);
         }
 
         public void Dispose()

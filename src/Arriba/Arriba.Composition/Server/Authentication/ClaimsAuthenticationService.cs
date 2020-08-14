@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Security.Claims;
 using System.Security.Principal;
+using Arriba.Caching;
 using Arriba.ParametersCheckers;
 
 namespace Arriba.Server.Authentication
@@ -14,8 +15,13 @@ namespace Arriba.Server.Authentication
     /// </summary>
     public class ClaimsAuthenticationService : IDisposable
     {
-        private readonly RuntimeCache _cache = new RuntimeCache("Arriba.ClaimsAuthentication");
+        private readonly RuntimeCache _cache;
         private readonly TimeSpan _defaultTimeToLive = TimeSpan.FromMinutes(15);
+
+        public ClaimsAuthenticationService(IObjectCacheFactory factory)
+        {
+            _cache = new RuntimeCache(factory.CreateCache("Arriba.ClaimsAuthentication"));
+        }
 
         /// <summary>
         /// Determines whether the specified user is within the specified security group. 

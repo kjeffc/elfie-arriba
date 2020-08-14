@@ -9,6 +9,7 @@ using Arriba.Model.Correctors;
 using Arriba.Model.Query;
 using Arriba.Model.Security;
 using Arriba.ParametersCheckers;
+using Arriba.Server.Authentication;
 using Arriba.Types;
 
 namespace Arriba.Communication.Server.Application
@@ -19,10 +20,10 @@ namespace Arriba.Communication.Server.Application
         private readonly IArribaAuthorization _arribaAuthorization;
         private readonly ComposedCorrector _correctors;
 
-        public ArribaManagementService(SecureDatabase secureDatabase, CompositionComposedCorrectors composedCorrector)
+        public ArribaManagementService(SecureDatabase secureDatabase, CompositionComposedCorrectors composedCorrector, ClaimsAuthenticationService claims)
         {
             _database = secureDatabase;
-            _arribaAuthorization = new ArribaAuthorization(_database);
+            _arribaAuthorization = new ArribaAuthorization(_database, claims);
             _correctors = composedCorrector;
         }
 

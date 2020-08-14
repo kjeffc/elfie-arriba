@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Composition;
-using System.Text;
+﻿using System.Composition;
+using Arriba.Caching;
 using Arriba.Communication.Application;
 using Arriba.Communication.Model;
 using Arriba.Communication.Server.Application;
@@ -26,14 +24,19 @@ namespace Arriba.Composition
     [Export(typeof(ClaimsAuthenticationService)), Shared]
     class ClaimsAuthenticationServiceExport : ClaimsAuthenticationService
     {
+        [ImportingConstructor]
+        public ClaimsAuthenticationServiceExport(IObjectCacheFactory factory) 
+            : base(factory)
+        {
+        }
     }
 
     [Export(typeof(IArribaManagementService)), Shared]
     class ArribaManagementServiceExport : ArribaManagementService
     {
         [ImportingConstructor]
-        public ArribaManagementServiceExport(SecureDatabase secureDatabase, CompositionComposedCorrectors composedCorrector)
-            : base(secureDatabase, composedCorrector)
+        public ArribaManagementServiceExport(SecureDatabase secureDatabase, CompositionComposedCorrectors composedCorrector, ClaimsAuthenticationService claims)
+            : base(secureDatabase, composedCorrector, claims)
         {
         }
     }
@@ -55,5 +58,10 @@ namespace Arriba.Composition
             : base(f, auth, managementService)
         {
         }
+    }
+
+    [Export(typeof(IObjectCacheFactory))]
+    internal class ObjectCacheFactory : MemoryCacheFactory
+    {
     }
 }
