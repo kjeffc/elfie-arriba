@@ -21,10 +21,7 @@ namespace Arriba.Test.Serialization.Json
             items.SetColumn(1, new object[] { 0, 3, 1, 3, 3 });
             items.SetColumn(2, new object[] { "Sample One", "Sample Two", "Sample Three", "Sample Four", "" });
 
-            JsonSerializerSettings settings = new JsonSerializerSettings();
-            settings.Converters.Add(new DataBlockJsonConverter());
-            settings.Converters.Add(new ColumnDetailsJsonConverter());
-            settings.Converters.Add(new ValueJsonConverter());
+            JsonSerializerSettings settings = ArribaSerializationConfig.GetConfiguredSettings();
 
             string serialized = JsonConvert.SerializeObject(items, settings);
 

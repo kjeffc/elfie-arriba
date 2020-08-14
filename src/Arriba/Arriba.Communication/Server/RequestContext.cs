@@ -18,10 +18,7 @@ namespace Arriba.Communication
     {
         private List<MonitorEventScope> _events = new List<MonitorEventScope>();
         private EventPublisherSource _eventSource;
-        private static readonly JsonSerializerSettings s_jsonSettings = new JsonSerializerSettings()
-        {
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        };
+        private static readonly JsonSerializerSettings s_jsonSettings = ArribaSerializationConfig.GetConfiguredSettings();
 
         private IRequest _request;
 

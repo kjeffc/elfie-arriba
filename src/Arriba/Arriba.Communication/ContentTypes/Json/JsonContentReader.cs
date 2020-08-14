@@ -20,18 +20,7 @@ namespace Arriba.Communication.ContentTypes
 
         public JsonContentReader(IEnumerable<JsonConverter> converters)
         {
-            _settings = new JsonSerializerSettings();
-#if DEBUG
-            _settings.Formatting = Newtonsoft.Json.Formatting.Indented;
-#endif
-
-            // Enable "PropertyName" to be output and read as "propertyName"
-            _settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-
-            foreach (var converter in converters)
-            {
-                _settings.Converters.Add(converter);
-            }
+            _settings = ArribaSerializationConfig.GetConfiguredSettings(converters);
         }
 
         IEnumerable<string> IContentReader.ContentTypes

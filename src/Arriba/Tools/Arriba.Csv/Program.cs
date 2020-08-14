@@ -47,7 +47,7 @@ namespace Arriba.Csv
       Arriba.Csv mode=build table=SP500 csvPath=""C:\Temp\SP500 Price History.csv"" maximumCount=50000
       Arriba.Csv mode=query table=SP500 select=""Date, Adj Close"" count=30
 ";
-        private static JsonSerializerSettings s_serializerSettings = new JsonSerializerSettings() { Formatting = Formatting.Indented, Converters = ConverterFactory.GetArribaConverters() };
+        private static JsonSerializerSettings s_serializerSettings = ArribaSerializationConfig.GetConfiguredSettings();
 
         public enum AddMode
         {

@@ -21,19 +21,7 @@ namespace Arriba.Communication.ContentTypes
 
         public JsonContentWriter(IEnumerable<JsonConverter> converters)
         {
-            _settings = new JsonSerializerSettings()
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver() { NamingStrategy = new CamelCaseNamingStrategy() { ProcessDictionaryKeys = false } }
-            };
-
-#if DEBUG
-            _settings.Formatting = Newtonsoft.Json.Formatting.Indented;
-#endif
-
-            foreach (var converter in converters)
-            {
-                _settings.Converters.Add(converter);
-            }
+            _settings = ArribaSerializationConfig.GetConfiguredSettings(converters);
         }
 
         string IContentWriter.ContentType

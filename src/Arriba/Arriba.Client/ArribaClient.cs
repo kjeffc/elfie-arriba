@@ -42,17 +42,7 @@ namespace Arriba.Client
             _httpClient.BaseAddress = url;
             _httpClient.Timeout = timeout ?? _httpClient.Timeout;
 
-            _serializerSettings = new JsonSerializerSettings()
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver() { NamingStrategy = new CamelCaseNamingStrategy() { ProcessDictionaryKeys = false } },
-                Formatting = Debugger.IsAttached ? Formatting.Indented : Formatting.None
-            };
-
-            // TODO: Use composition to import Converters
-            foreach (JsonConverter converter in ConverterFactory.GetArribaConverters())
-            {
-                _serializerSettings.Converters.Add(converter);
-            }
+            _serializerSettings = ArribaSerializationConfig.GetConfiguredSettings();
         }
 
         public ArribaTableClient this[string tableName]
