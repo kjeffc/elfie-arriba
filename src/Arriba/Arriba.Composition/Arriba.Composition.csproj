@@ -9,6 +9,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="Application\**" />
+      <EmbeddedResource Remove="Application\**" />
+      <None Remove="Application\**" />
+    </ItemGroup>
+
+    <ItemGroup>
         <None Include="app.config" />
     </ItemGroup>
 

@@ -27,7 +27,7 @@ namespace Arriba.Server
     /// <summary>
     /// Arriba restful application for query operations.
     /// </summary>
-    internal class ArribaQueryApplication : ArribaApplication
+    public class ArribaQueryApplication : ArribaApplication
     {
         private const string DefaultFormat = "dictionary";
 

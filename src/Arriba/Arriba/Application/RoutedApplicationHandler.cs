@@ -11,7 +11,7 @@ namespace Arriba.Communication.Application
     /// <summary>
     /// Application implementation that delegates to IRoutedApplication implementations. 
     /// </summary>
-    internal class RoutedApplicationHandler : IApplication
+    public class RoutedApplicationHandler : IApplication
     {
         private Dictionary<RequestVerb, IRouteHandler[]> _routeLookup = new Dictionary<RequestVerb, IRouteHandler[]>();
         private List<IRoutedApplication> _apps = new List<IRoutedApplication>();
