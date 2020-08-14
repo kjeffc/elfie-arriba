@@ -15,7 +15,6 @@ namespace Arriba.Server.Application
 {
     internal class InspectApplication : ArribaApplication
     {
-        [ImportingConstructor]
         public InspectApplication(DatabaseFactory f, ClaimsAuthenticationService auth)
             : base(f, auth)
         {

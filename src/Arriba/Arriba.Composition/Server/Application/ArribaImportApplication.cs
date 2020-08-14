@@ -19,12 +19,10 @@ using Arriba.Model;
 
 namespace Arriba.Server.Application
 {
-    [Export(typeof(IRoutedApplication))]
-    internal class ArribaImportApplication : ArribaApplication
+    public class ArribaImportApplication : ArribaApplication
     {
         private const int BatchSize = 100;
 
-        [ImportingConstructor]
         public ArribaImportApplication(DatabaseFactory f, ClaimsAuthenticationService auth)
             : base(f, auth)
         {

@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Composition;
 using System.Net;
 using System.Security.Principal;
 using System.Threading.Tasks;
@@ -20,14 +19,13 @@ using Arriba.Server.Hosting;
 
 namespace Arriba.Server
 {
-    internal abstract class ArribaApplication : RoutedApplication<IResponse>
+    public abstract class ArribaApplication : RoutedApplication<IResponse>
     {
         protected static readonly ArribaResponse ContinueToNextHandlerResponse = null;
         private ClaimsAuthenticationService _claimsAuth;
         private ComposedCorrector _correctors;
         private IArribaAuthorization _arribaAuthorization;
 
-        [ImportingConstructor]
         protected ArribaApplication(DatabaseFactory factory, ClaimsAuthenticationService claimsAuth)
         {
             ParamChecker.ThrowIfNull(factory, nameof(factory));

@@ -1,4 +1,7 @@
-﻿using Arriba.Communication.Model;
+﻿using System;
+using System.Collections.Generic;
+using System.Security.Principal;
+using Arriba.Communication.Model;
 using Arriba.Communication.Server.Authorization;
 using Arriba.Model;
 using Arriba.Model.Column;
@@ -7,21 +10,15 @@ using Arriba.Model.Query;
 using Arriba.Model.Security;
 using Arriba.ParametersCheckers;
 using Arriba.Types;
-using System;
-using System.Collections.Generic;
-using System.Composition;
-using System.Security.Principal;
 
 namespace Arriba.Communication.Server.Application
 {
-    [Export(typeof(IArribaManagementService)), Shared]
-    internal class ArribaManagementService : IArribaManagementService
+    public class ArribaManagementService : IArribaManagementService
     {
         private readonly SecureDatabase _database;
         private readonly IArribaAuthorization _arribaAuthorization;
         private readonly ComposedCorrector _correctors;
 
-        [ImportingConstructor]
         public ArribaManagementService(SecureDatabase secureDatabase, CompositionComposedCorrectors composedCorrector)
         {
             _database = secureDatabase;

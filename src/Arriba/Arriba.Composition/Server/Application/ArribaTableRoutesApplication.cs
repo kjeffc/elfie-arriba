@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Composition;
 using System.Security.Principal;
 using System.Threading.Tasks;
 
@@ -12,7 +11,6 @@ using Arriba.Communication.Application;
 using Arriba.Communication.Server.Application;
 using Arriba.Model;
 using Arriba.Model.Column;
-using Arriba.Model.Query;
 using Arriba.Model.Security;
 using Arriba.Monitoring;
 using Arriba.ParametersCheckers;
@@ -22,12 +20,10 @@ using Arriba.Types;
 
 namespace Arriba.Server.Application
 {
-    [Export(typeof(IRoutedApplication))]
-    internal class ArribaTableRoutesApplication : ArribaApplication
+    public class ArribaTableRoutesApplication : ArribaApplication
     {
         private readonly IArribaManagementService _service;
 
-        [ImportingConstructor]
         public ArribaTableRoutesApplication(DatabaseFactory f, ClaimsAuthenticationService auth, IArribaManagementService managementService)
             : base(f, auth)
         {

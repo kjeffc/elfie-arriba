@@ -1,20 +1,18 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Arriba.ParametersCheckers;
 using System;
-using System.Composition;
 using System.Diagnostics;
 using System.Security.Claims;
 using System.Security.Principal;
+using Arriba.ParametersCheckers;
 
 namespace Arriba.Server.Authentication
 {
     /// <summary>
     /// Windows authentication utilities. 
     /// </summary>
-    [Export(typeof(ClaimsAuthenticationService)), Shared]
-    internal class ClaimsAuthenticationService : IDisposable
+    public class ClaimsAuthenticationService : IDisposable
     {
         private readonly RuntimeCache _cache = new RuntimeCache("Arriba.ClaimsAuthentication");
         private readonly TimeSpan _defaultTimeToLive = TimeSpan.FromMinutes(15);

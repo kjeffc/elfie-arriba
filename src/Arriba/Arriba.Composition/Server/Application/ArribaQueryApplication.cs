@@ -3,11 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Composition;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Security.Principal;
 using System.Threading.Tasks;
-
 using Arriba.Communication;
 using Arriba.Communication.Application;
 using Arriba.Model;
@@ -22,19 +21,16 @@ using Arriba.Serialization.Csv;
 using Arriba.Server.Authentication;
 using Arriba.Server.Hosting;
 using Arriba.Structures;
-using System.Collections.Specialized;
 
 namespace Arriba.Server
 {
     /// <summary>
     /// Arriba restful application for query operations.
     /// </summary>
-    [Export(typeof(IRoutedApplication))]
     internal class ArribaQueryApplication : ArribaApplication
     {
         private const string DefaultFormat = "dictionary";
 
-        [ImportingConstructor]
         public ArribaQueryApplication(DatabaseFactory f, ClaimsAuthenticationService auth)
             : base(f, auth)
         {
