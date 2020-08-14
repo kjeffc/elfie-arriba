@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -11,20 +10,14 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-
-using Arriba.Client.Serialization.Json;
 using Arriba.Server;
 using Arriba.Types;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace Arriba.Client
 {
     public class ArribaClient : IDisposable
     {
         private HttpClient _httpClient;
-        private JsonSerializerSettings _serializerSettings;
 
         public ArribaClient(string url)
             : this(new Uri(url))
@@ -41,8 +34,6 @@ namespace Arriba.Client
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
             _httpClient.BaseAddress = url;
             _httpClient.Timeout = timeout ?? _httpClient.Timeout;
-
-            _serializerSettings = ArribaSerializationConfig.GetConfiguredSettings();
         }
 
         public ArribaTableClient this[string tableName]
@@ -81,7 +72,7 @@ namespace Arriba.Client
             var resp = await this.SendAsync(method, path, parameters, content);
             resp.EnsureSuccessStatusCode();
             var body = await resp.Content.ReadAsStringAsync();
-            var env = JsonConvert.DeserializeObject<ArribaResponseEnvelope<T>>(body, _serializerSettings);
+            var env = ArribaConvert.FromJson<ArribaResponseEnvelope<T>>(body);
             return (T)env.Content;
         }
 
@@ -90,7 +81,7 @@ namespace Arriba.Client
             var resp = await this.SendObjectAsync(method, path, parameters, value);
             resp.EnsureSuccessStatusCode();
             var body = await resp.Content.ReadAsStringAsync();
-            var env = JsonConvert.DeserializeObject<ArribaResponseEnvelope<T>>(body, _serializerSettings);
+            var env = ArribaConvert.FromJson<ArribaResponseEnvelope<T>>(body);
             return (T)env.Content;
         }
 
@@ -99,7 +90,7 @@ namespace Arriba.Client
             var resp = await this.SendStreamAsync(method, path, parameters, value, contentType);
             resp.EnsureSuccessStatusCode();
             var body = await resp.Content.ReadAsStringAsync();
-            var env = JsonConvert.DeserializeObject<ArribaResponseEnvelope<T>>(body, _serializerSettings);
+            var env = ArribaConvert.FromJson<ArribaResponseEnvelope<T>>(body);
             return (T)env.Content;
         }
 
@@ -117,7 +108,7 @@ namespace Arriba.Client
 
         internal async Task<HttpResponseMessage> SendObjectAsync(HttpMethod method, string path, dynamic parameters = null, object value = null)
         {
-            using (var content = new StringContent(JsonConvert.SerializeObject(value, _serializerSettings), Encoding.UTF8))
+            using (var content = new StringContent(ArribaConvert.ToJson(value), Encoding.UTF8))
             {
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
                 return await this.SendAsync(method, path, parameters, content);

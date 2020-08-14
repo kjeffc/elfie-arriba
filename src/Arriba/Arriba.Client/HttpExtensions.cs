@@ -10,14 +10,11 @@ using System.Threading.Tasks;
 using Arriba.Server;
 
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace Arriba.Client
 {
     internal static class HttpExtensions
     {
-        private static JsonSerializerSettings s_jsonSettings = ArribaSerializationConfig.GetConfiguredSettings();
-
         public static async Task EnsureArribaSuccess(this HttpResponseMessage message)
         {
             if (message.IsSuccessStatusCode)
@@ -44,14 +41,14 @@ namespace Arriba.Client
                         {
                             // Can we create a matching type? 
                             string type = exceptionType.First();
-                            inner = JsonConvert.DeserializeObject<Exception>(contentString, s_jsonSettings);
+                            inner = ArribaConvert.FromJson<Exception>(contentString);
 
                             exceptionMessage += ": Server threw unhandled " + type + ". See inner exception for details";
                             foundSpecificContent = true;
                         }
                         else
                         {
-                            var envalope = JsonConvert.DeserializeObject<ArribaResponseEnvelope>(contentString, s_jsonSettings);
+                            var envalope = ArribaConvert.FromJson<ArribaResponseEnvelope>(contentString);
 
                             if (envalope.Content != null)
                             {

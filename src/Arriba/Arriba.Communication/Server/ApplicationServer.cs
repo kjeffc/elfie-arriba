@@ -11,8 +11,6 @@ using System.Threading.Tasks;
 using Arriba.Communication.ContentTypes;
 using Arriba.Monitoring;
 
-using Newtonsoft.Json;
-
 namespace Arriba.Communication
 {
     /// <summary>
@@ -229,7 +227,7 @@ namespace Arriba.Communication
                                   entityIdentity: "",
                                   user: request.Request.User.Identity.Name,
                                   name: "RuntimeException",
-                                  detail: JsonConvert.SerializeObject(detailObject));
+                                  detail: ArribaConvert.ToJson(detailObject));
 
                 return resp;
             }

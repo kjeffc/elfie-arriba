@@ -3,14 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 using Arriba.Monitoring;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace Arriba.Communication
 {
@@ -18,8 +13,6 @@ namespace Arriba.Communication
     {
         private List<MonitorEventScope> _events = new List<MonitorEventScope>();
         private EventPublisherSource _eventSource;
-        private static readonly JsonSerializerSettings s_jsonSettings = ArribaSerializationConfig.GetConfiguredSettings();
-
         private IRequest _request;
 
         public RequestContext(IRequest request)
@@ -61,7 +54,7 @@ namespace Arriba.Communication
             if (detail != null)
             {
                 // Attempt to serialize  
-                detailValue = JsonConvert.SerializeObject(detail, s_jsonSettings);
+                detailValue = ArribaConvert.ToJson(detail);
             }
 
             var evt = _eventSource.RaiseScope(level: level, entityType: type, entityIdentity: identity, name: name, detail: detailValue);

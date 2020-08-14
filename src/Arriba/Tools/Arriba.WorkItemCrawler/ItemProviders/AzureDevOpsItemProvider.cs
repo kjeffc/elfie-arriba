@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Arriba.Extensions;
 using Arriba.Model.Column;
 using Arriba.Structures;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Arriba.ItemProviders
@@ -138,7 +137,7 @@ namespace Arriba.ItemProviders
             if (!IsSuccessFull(webRequest.StatusCode))
                 throw new ArribaException($"Error performing request: Status code: {webRequest.StatusCode}");
             var json = await webRequest.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeObject<ValueRequest<IList<AzureDevOpsChangedWorkItem>>>(json);
+            var result = ArribaConvert.FromJson<ValueRequest<IList<AzureDevOpsChangedWorkItem>>>(json);
 
             if (result != null)
                 return result.Value
@@ -218,7 +217,7 @@ namespace Arriba.ItemProviders
             Uri fieldsUri = GetUri("_apis/wit/fields");
             var webRequest = await Http.GetAsync(fieldsUri);
             var json = await webRequest.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeObject<ValueRequest<IList<AzureDevOpsFieldDefinition>>>(json);
+            var result = ArribaConvert.FromJson<ValueRequest<IList<AzureDevOpsFieldDefinition>>>(json);
             return result.Value;
         }
 
@@ -231,7 +230,7 @@ namespace Arriba.ItemProviders
                 var uri = GetUri($"_apis/wit/workitems/?ids={string.Join(",", batch.Select(x => x.ID))}");
                 var webRequest = await Http.GetAsync(uri);
                 var json = await webRequest.Content.ReadAsStringAsync();
-                var jsonResult = JsonConvert.DeserializeObject<ValueRequest<IList<AzWorkItem>>>(json);
+                var jsonResult = ArribaConvert.FromJson<ValueRequest<IList<AzWorkItem>>>(json);
                 result.AddRange(jsonResult.Value);
             }
 
