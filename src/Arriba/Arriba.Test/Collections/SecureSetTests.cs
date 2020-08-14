@@ -1,4 +1,5 @@
-﻿using Arriba.Model.Security;
+﻿using System.Linq;
+using Arriba.Model.Security;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Arriba.Test.Collections
@@ -30,7 +31,7 @@ namespace Arriba.Test.Collections
             var input = "[{\"key\":{\"scope\":\"Group\",\"name\":\"group\"},\"value\":\"group value\"},{\"key\":{\"scope\":\"User\",\"name\":\"user\"},\"value\":\"user value\"}]";
 
             var actual = ArribaConvert.FromJson<SecuredSet<string>>(input);
-            CollectionAssert.AreEquivalent(expected, actual);
+            CollectionAssert.AreEquivalent(expected.ToList(), actual.ToList());
         }
     }
 }

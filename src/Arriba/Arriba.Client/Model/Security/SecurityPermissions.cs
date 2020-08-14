@@ -2,24 +2,89 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
-
 using Arriba.Serialization;
-
-using Newtonsoft.Json;
 
 namespace Arriba.Model.Security
 {
-    [JsonArray, Serializable]
-    public class SecuredSet<T> : Dictionary<SecurityIdentity, T>
+    [Serializable]
+    public class SecuredSet<T> : ICollection<KeyValuePair<SecurityIdentity,T>>
     {
-        public SecuredSet() : base()
-        { }
+        private readonly IDictionary<SecurityIdentity, T> _set;
 
-        protected SecuredSet(SerializationInfo info, StreamingContext context) : base(info, context)
-        { }
+        public SecuredSet() 
+        {
+            _set = new Dictionary<SecurityIdentity, T>();
+        }
+
+        public IEnumerator<KeyValuePair<SecurityIdentity, T>> GetEnumerator()
+        {
+            return _set.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)_set).GetEnumerator();
+        }
+
+        public T this[SecurityIdentity index]
+        {
+            get
+            {
+                return _set[index];
+            }
+            set
+            {
+                _set[index] = value;
+            }
+        }
+
+        public int Count
+        {
+            get
+            {
+                return _set.Count;
+            }
+        }
+
+        public bool IsReadOnly { get { return false; } }
+
+        public void Remove(SecurityIdentity identity)
+        {
+            _set.Remove(identity);
+        }
+
+        public void Add(SecurityIdentity id, T value)
+        {
+            _set.Add(id, value);
+        }
+
+        public void Add(KeyValuePair<SecurityIdentity, T> item)
+        {
+            _set.Add(item);
+        }
+
+        void ICollection<KeyValuePair<SecurityIdentity,T>>.Clear()
+        {
+            _set.Clear();
+        }
+
+        bool ICollection<KeyValuePair<SecurityIdentity, T>>.Contains(KeyValuePair<SecurityIdentity, T> item)
+        {
+           return  _set.Contains(item);
+        }
+
+        void ICollection<KeyValuePair<SecurityIdentity, T>>.CopyTo(KeyValuePair<SecurityIdentity, T>[] array, int arrayIndex)
+        {
+            _set.CopyTo(array, arrayIndex);
+        }
+
+        bool ICollection<KeyValuePair<SecurityIdentity, T>>.Remove(KeyValuePair<SecurityIdentity, T> item)
+        {
+            return _set.Remove(item);
+        }
     }
 
     /// <summary>
