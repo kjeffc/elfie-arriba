@@ -8,7 +8,7 @@ namespace Arriba.Communication.Application
     /// <summary>
     /// Encapsulates a routes matching and processing functionality. 
     /// </summary>
-    internal interface IRouteHandler
+    public interface IRouteHandler
     {
         RouteMatcher Matcher { get; }
 

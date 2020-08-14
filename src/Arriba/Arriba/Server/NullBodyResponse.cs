@@ -6,7 +6,7 @@ namespace Arriba.Communication
     /// <summary>
     /// Modifies a response to have no response body.
     /// </summary>
-    internal class NullBodyResponse : IResponse
+    public class NullBodyResponse : IResponse
     {
         private IResponse _response;
 

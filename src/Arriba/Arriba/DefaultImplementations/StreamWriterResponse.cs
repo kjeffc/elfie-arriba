@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Arriba.Communication
 {
-    internal class StreamWriterResponse : Response, IStreamWriterResponse
+    public class StreamWriterResponse : Response, IStreamWriterResponse
     {
         private Func<Stream, Task> _streamWriter;
 
@@ -17,7 +17,7 @@ namespace Arriba.Communication
             this.ContentType = contentType;
         }
 
-        internal StreamWriterResponse(string contentType, Func<Stream, Task> streamWriter)
+        public StreamWriterResponse(string contentType, Func<Stream, Task> streamWriter)
             : this(contentType)
         {
             if (streamWriter == null)

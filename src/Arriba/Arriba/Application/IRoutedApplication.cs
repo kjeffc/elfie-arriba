@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Arriba.Communication.Application
 {
-    internal interface IRoutedApplication
+    public interface IRoutedApplication
     {
         string Name { get; }
 

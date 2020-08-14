@@ -14,7 +14,7 @@ namespace Arriba.Communication.Application
     /// <summary>
     /// Encapsulates a specified route. 
     /// </summary>
-    internal class RouteMatcher
+    public class RouteMatcher
     {
         private readonly string _routeString;
         private readonly Regex _resourceRegex;
@@ -155,7 +155,7 @@ namespace Arriba.Communication.Application
             return regexString.ToString();
         }
 
-        internal bool TryGetRouteMatch(RequestVerb verb, string uri, IValueBag parameters, out Route data)
+        public bool TryGetRouteMatch(RequestVerb verb, string uri, IValueBag parameters, out Route data)
         {
             data = null;
 

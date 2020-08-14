@@ -10,7 +10,7 @@ namespace Arriba.Communication
     /// <summary>
     /// Modifies the request verb for a request.
     /// </summary>
-    internal class ModifiedVerbRequest : IRequest
+    public class ModifiedVerbRequest : IRequest
     {
         private RequestVerb _verb;
         private IRequest _request;

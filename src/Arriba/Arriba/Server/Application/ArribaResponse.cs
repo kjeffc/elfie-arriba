@@ -20,33 +20,33 @@ namespace Arriba.Server
             return _envelope;
         }
 
-        internal static ArribaResponse Ok(object body)
+        public static ArribaResponse Ok(object body)
         {
             return new ArribaResponse(ResponseStatus.Ok, body);
         }
 
-        internal static ArribaResponse Created(object body)
+        public static ArribaResponse Created(object body)
         {
             return new ArribaResponse(ResponseStatus.Created, body);
         }
 
-        internal static ArribaResponse Forbidden(object body)
+        public static ArribaResponse Forbidden(object body)
         {
             return new ArribaResponse(ResponseStatus.Forbidden, body);
         }
 
-        internal static ArribaResponse BadRequest(string format, params object[] args)
+        public static ArribaResponse BadRequest(string format, params object[] args)
         {
             return new ArribaResponse(ResponseStatus.Error, string.Format(format, args));
         }
 
         // Replace Response.Error, Response.NotFound with ArribaResponseEnvelope-returning-versions
-        internal static new ArribaResponse Error(object body)
+        public static new ArribaResponse Error(object body)
         {
             return new ArribaResponse(ResponseStatus.Error, body);
         }
 
-        internal static new ArribaResponse NotFound(object body)
+        public static new ArribaResponse NotFound(object body)
         {
             return new ArribaResponse(ResponseStatus.NotFound, body);
         }

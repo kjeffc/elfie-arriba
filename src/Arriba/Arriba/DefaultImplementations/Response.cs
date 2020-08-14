@@ -67,17 +67,17 @@ namespace Arriba.Communication
             _headersLazy.Value.Add(key, value);
         }
 
-        internal static IResponse Error(object body)
+        public static IResponse Error(object body)
         {
             return new Response(ResponseStatus.Error, body);
         }
 
-        internal static IResponse NotFound(object body)
+        public static IResponse NotFound(object body)
         {
             return new Response(ResponseStatus.NotFound, body);
         }
 
-        internal static IResponse NotFound()
+        public static IResponse NotFound()
         {
             return new Response(ResponseStatus.NotFound, null);
         }

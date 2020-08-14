@@ -12,7 +12,7 @@ namespace Arriba.Communication.ContentTypes
     /// <summary>
     /// Content reading and writing service. 
     /// </summary>
-    internal class ContentReaderWriterService : IContentReaderWriterService
+    public class ContentReaderWriterService : IContentReaderWriterService
     {
         internal readonly Dictionary<string, IContentReader> readers = new Dictionary<string, IContentReader>(StringComparer.OrdinalIgnoreCase);
         internal readonly Dictionary<string, IContentWriter> writers = new Dictionary<string, IContentWriter>(StringComparer.OrdinalIgnoreCase);
