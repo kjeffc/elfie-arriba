@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Arriba.Composition;
 using Arriba.Configuration;
 using Arriba.ItemConsumers;
 using Arriba.ItemProviders;
@@ -26,6 +27,7 @@ namespace Arriba
                 return -1;
             }
 
+            ArribaServices.Initialize();
             var configLoader = new ArribaConfigurationLoader(args);
             var configurationName = configLoader.GetStringValue("configName");
             var mode = configLoader.GetStringValue("mode", "-i").ToLowerInvariant();

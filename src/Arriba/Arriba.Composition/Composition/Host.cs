@@ -7,6 +7,7 @@ using System.Composition.Convention;
 using System.Composition.Hosting;
 using System.Linq;
 using Arriba.Communication;
+using Arriba.Communication.ContentTypes;
 using Arriba.Model;
 
 namespace Arriba.Composition
@@ -41,7 +42,9 @@ namespace Arriba.Composition
                 // Arriba.dll
                 typeof(Table).Assembly, 
                 // Arriba.Composition.dll
-                typeof(Host).Assembly
+                typeof(Host).Assembly,
+                // Arriba.Adapter.Newtonsoft
+                typeof(JsonContentWriter).Assembly
             };
 
             _configuration = new ContainerConfiguration().WithAssemblies(assemblies.Distinct(), conventions);
