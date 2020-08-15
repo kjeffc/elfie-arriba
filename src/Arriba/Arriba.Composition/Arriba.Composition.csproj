@@ -19,7 +19,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Newtonsoft.Json" Version="10.0.1" />
       <PackageReference Include="System.Composition" Version="1.4.1" />
       <PackageReference Include="System.Composition.AttributedModel" Version="1.4.1" />
       <PackageReference Include="System.Composition.Hosting" Version="1.4.1" />
