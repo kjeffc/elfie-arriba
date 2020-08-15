@@ -27,6 +27,7 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Adapters\Arriba.Adapter.Configuration\Arriba.Adapter.Configuration.csproj" />
+        <ProjectReference Include="..\Adapters\Arriba.Adapter.Telemetry\Arriba.Adapter.Telemetry.csproj" />
         <ProjectReference Include="..\Arriba.Composition\Arriba.Composition.csproj" />
         <ProjectReference Include="..\Arriba\Arriba.csproj">
             <Project>{d89b4a01-f637-4147-9737-91a327a9da3f}</Project>
