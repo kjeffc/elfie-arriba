@@ -1,18 +1,18 @@
 ﻿using Arriba.Serialization;
 using Newtonsoft.Json;
 
-namespace Arriba
+namespace Arriba.Serialization
 {
-    public static class ArribaConvert
+    public class NewtonsoftJsonArribaConvert : IArribaConvert
     {
-        private readonly static JsonSerializerSettings _settings;
+        private readonly JsonSerializerSettings _settings;
 
-        static ArribaConvert()
+        public NewtonsoftJsonArribaConvert()
         {
             _settings = ArribaSerializationConfig.GetConfiguredSettings();
         }
 
-        public static string ToJson(object content)
+        public string ToJson<T>(T content)
         {
             try
             {
@@ -24,7 +24,7 @@ namespace Arriba
             }
         }
 
-        public static T FromJson<T>(string content)
+        public T FromJson<T>(string content)
         {
             try
             {

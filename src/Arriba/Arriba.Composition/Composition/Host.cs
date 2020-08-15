@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
@@ -22,6 +22,7 @@ namespace Arriba.Composition
 
         public Host()
         {
+            ArribaServices.Initialize();
             var conventions = new ConventionBuilder();
             conventions.ForTypesDerivedFrom<IChannel>()
                 .ExportInterfaces()
@@ -45,7 +46,7 @@ namespace Arriba.Composition
                 .Shared();
 
             //                       Arriba.dll              Arriba.Client                  Arriba.Communication           Arriba.Server
-            var assemblies = new[] { typeof(Table).Assembly, typeof(ArribaClient).Assembly, typeof(IApplication).Assembly, typeof(Host).Assembly, typeof(ArribaConvert).Assembly };
+            var assemblies = new[] { typeof(Table).Assembly, typeof(ArribaClient).Assembly, typeof(IApplication).Assembly, typeof(Host).Assembly, typeof(NewtonsoftJsonArribaConvert).Assembly };
 
             _configuration = new ContainerConfiguration().WithAssemblies(assemblies.Distinct(), conventions);
         }
