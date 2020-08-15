@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arriba.Adapter.Configuratio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arriba.Composition", "Arriba.Composition\Arriba.Composition.csproj", "{E61CAF4D-091A-46BB-B55C-42FA2A03AC9C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arriba.Adapter.Cache", "Adapters\Arriba.Adapter.Cache\Arriba.Adapter.Cache.csproj", "{6021319A-7FE8-4832-98C2-AD6C38089408}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -171,6 +173,18 @@ Global
 		{E61CAF4D-091A-46BB-B55C-42FA2A03AC9C}.Release|x64.Build.0 = Release|Any CPU
 		{E61CAF4D-091A-46BB-B55C-42FA2A03AC9C}.Release|x86.ActiveCfg = Release|Any CPU
 		{E61CAF4D-091A-46BB-B55C-42FA2A03AC9C}.Release|x86.Build.0 = Release|Any CPU
+		{6021319A-7FE8-4832-98C2-AD6C38089408}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6021319A-7FE8-4832-98C2-AD6C38089408}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6021319A-7FE8-4832-98C2-AD6C38089408}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6021319A-7FE8-4832-98C2-AD6C38089408}.Debug|x64.Build.0 = Debug|Any CPU
+		{6021319A-7FE8-4832-98C2-AD6C38089408}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6021319A-7FE8-4832-98C2-AD6C38089408}.Debug|x86.Build.0 = Debug|Any CPU
+		{6021319A-7FE8-4832-98C2-AD6C38089408}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6021319A-7FE8-4832-98C2-AD6C38089408}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6021319A-7FE8-4832-98C2-AD6C38089408}.Release|x64.ActiveCfg = Release|Any CPU
+		{6021319A-7FE8-4832-98C2-AD6C38089408}.Release|x64.Build.0 = Release|Any CPU
+		{6021319A-7FE8-4832-98C2-AD6C38089408}.Release|x86.ActiveCfg = Release|Any CPU
+		{6021319A-7FE8-4832-98C2-AD6C38089408}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -180,6 +194,7 @@ Global
 		{20CB1373-01F1-41EF-8A3E-07450C6FFB1E} = {AC459F90-C1BF-4B6A-BEC4-5C19487C3D8B}
 		{23755895-51F7-4C38-8EFD-1AAF2BA4114A} = {F9B80722-DFD9-489A-BE71-E91CF78F5441}
 		{53F5BD57-AC78-4300-A619-6D2486A2B2C2} = {F9B80722-DFD9-489A-BE71-E91CF78F5441}
+		{6021319A-7FE8-4832-98C2-AD6C38089408} = {F9B80722-DFD9-489A-BE71-E91CF78F5441}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1A13044D-76D1-4136-A0F3-415C5D9FF24F}
