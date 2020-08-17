@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
       <PackageReference Include="System.Composition" Version="1.4.1" />
       <PackageReference Include="System.Composition.AttributedModel" Version="1.4.1" />
       <PackageReference Include="System.Composition.Hosting" Version="1.4.1" />
