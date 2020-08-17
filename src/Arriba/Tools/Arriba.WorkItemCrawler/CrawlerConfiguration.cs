@@ -5,6 +5,9 @@ using System;
 using System.Collections.Generic;
 using Arriba.Configuration;
 using Arriba.Model.Security;
+using Arriba.Telemetry;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace Arriba
 {
@@ -119,14 +122,17 @@ namespace Arriba
 
         public string ServiceName { get; set; }
 
+        public IApplicationInsightsConfiguration AppInsights { get; }
+
         public CrawlerConfiguration()
         {
-            Owners = new List<string>();
-            Writers = new List<string>();
-            Readers = new List<string>();
-            ColumnsToInclude = new List<string>();
-            ColumnsToExclude = new List<string>();
-            ColumnMappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            this.Owners = new List<string>();
+            this.Writers = new List<string>();
+            this.Readers = new List<string>();
+            this.ColumnsToInclude = new List<string>();
+            this.ColumnsToExclude = new List<string>();
+            this.ColumnMappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            AppInsights = new DefaultApplicationInsightsConfig(this);
         }
 
         public SecurityPermissions LoadPermissions()

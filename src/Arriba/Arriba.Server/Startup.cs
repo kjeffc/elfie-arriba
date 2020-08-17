@@ -32,6 +32,8 @@ namespace Arriba.Server
                 options.AllowSynchronousIO = true;
             });
 
+            services.AddApplicationInsights(serverConfig.AppInsights);
+
             services.AddCors(cors =>
             {
                 cors.AddDefaultPolicy(builder =>

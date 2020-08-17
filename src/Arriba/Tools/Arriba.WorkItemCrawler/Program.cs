@@ -52,7 +52,9 @@ namespace Arriba
                     }
 
                     var config = configLoader.Bind<CrawlerConfiguration>("Arriba");
-
+                    
+                    config.AppInsights.UseAppInsightsTraceListener();
+                    
                     // Build the item consumer
                     IItemConsumer consumer = ItemConsumerUtilities.Build(config);
 

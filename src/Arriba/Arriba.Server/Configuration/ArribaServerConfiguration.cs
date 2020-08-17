@@ -1,4 +1,5 @@
-using Arriba.Configuration;
+﻿using Arriba.Configuration;
+using Arriba.Telemetry;
 
 namespace Arriba.Configuration
 {
@@ -13,9 +14,13 @@ namespace Arriba.Configuration
         public string ApplicationVersion { get; set; }
 
         public string ServiceName { get; set; }
+
+        public IApplicationInsightsConfiguration AppInsights { get; }
+
         public ArribaServerConfiguration()
         {
             OAuthConfig = new OAuthConfig();
+            AppInsights = new DefaultApplicationInsightsConfig(this);
         }
     }
 }
