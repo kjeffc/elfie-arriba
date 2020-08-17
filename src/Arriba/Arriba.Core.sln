@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arriba.Adapter.Cache", "Ada
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arriba.Adapter.Telemetry", "Adapters\Arriba.Adapter.Telemetry\Arriba.Adapter.Telemetry.csproj", "{8F63816C-67B2-4D6C-BE88-8FB3905CB6FD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arriba.Adapter.ApplicationInsights", "Arriba.Adapter.ApplicationInsights\Arriba.Adapter.ApplicationInsights.csproj", "{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -199,6 +201,18 @@ Global
 		{8F63816C-67B2-4D6C-BE88-8FB3905CB6FD}.Release|x64.Build.0 = Release|Any CPU
 		{8F63816C-67B2-4D6C-BE88-8FB3905CB6FD}.Release|x86.ActiveCfg = Release|Any CPU
 		{8F63816C-67B2-4D6C-BE88-8FB3905CB6FD}.Release|x86.Build.0 = Release|Any CPU
+		{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87}.Debug|x64.Build.0 = Debug|Any CPU
+		{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87}.Debug|x86.Build.0 = Debug|Any CPU
+		{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87}.Release|x64.ActiveCfg = Release|Any CPU
+		{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87}.Release|x64.Build.0 = Release|Any CPU
+		{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87}.Release|x86.ActiveCfg = Release|Any CPU
+		{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -210,6 +224,7 @@ Global
 		{53F5BD57-AC78-4300-A619-6D2486A2B2C2} = {F9B80722-DFD9-489A-BE71-E91CF78F5441}
 		{6021319A-7FE8-4832-98C2-AD6C38089408} = {F9B80722-DFD9-489A-BE71-E91CF78F5441}
 		{8F63816C-67B2-4D6C-BE88-8FB3905CB6FD} = {F9B80722-DFD9-489A-BE71-E91CF78F5441}
+		{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87} = {9909F4E7-9E19-4199-B20B-C5811744878A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1A13044D-76D1-4136-A0F3-415C5D9FF24F}
