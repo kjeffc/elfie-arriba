@@ -1,4 +1,4 @@
-﻿using Arriba.Configuration;
+using Arriba.Configuration;
 
 namespace Arriba.Configuration
 {
@@ -10,6 +10,9 @@ namespace Arriba.Configuration
 
         public bool EnabledAuthentication { get; set; }
 
+        public string ApplicationVersion { get; set; }
+
+        public string ServiceName { get; set; }
         public ArribaServerConfiguration()
         {
             OAuthConfig = new OAuthConfig();

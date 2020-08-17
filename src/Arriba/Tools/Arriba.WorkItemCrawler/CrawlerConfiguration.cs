@@ -115,6 +115,10 @@ namespace Arriba
         /// </summary>
         public Dictionary<string, string> ColumnMappings { get; set; }
 
+        public string ApplicationVersion { get; set; }
+
+        public string ServiceName { get; set; }
+
         public CrawlerConfiguration()
         {
             Owners = new List<string>();
