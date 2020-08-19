@@ -22,6 +22,12 @@ Elfie is a library which makes it easy to build memory-efficient, extremely fast
 
 As an example, a set of ~5M Active Directory items with five columns and ~25M links in a graph fit in ~800MB, loads in ~600ms, and can be traversed at a rate of ~15M links per second, measured on a Surface Book i7.
 
+
+## Getting Started
+- [Arriba DockerCompose Quick Start](./docs/Arriba-DockerCompose-QuickStart.md)
+- [Run CSE Instance Locally](./docs/Run-Local-DockerCompose.md)
+  
+  
 ## Contributing
 
 Arriba and Elfie are not owned by a dedicated team, so while fixes and small changes are welcome, our ability to include contributions and comment on design changes is limited. For larger fixes and design change ideas, please contact us so that we can comment on the design or suggest working in another fork. 
@@ -33,4 +39,5 @@ Please:
 * Run the [Code Formatter](https://github.com/vScottLouvau/codeformatter) passing "/rule+:UsingOrder,BraceNewline Arriba.sln"
 
 Arriba and Elfie performance depend on minimizing allocations, boxing, and indirect method calls, so compare performance of real-life scenarios involving your code to avoid regressions. They were created by Microsoft to enable great internal tools, and we've opened them hoping they will enable you to create great search and analytics tools in your favorite language. =)
+
 
