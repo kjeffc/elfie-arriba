@@ -29,11 +29,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arriba.Adapter.Configuratio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arriba.Composition", "Arriba.Composition\Arriba.Composition.csproj", "{E61CAF4D-091A-46BB-B55C-42FA2A03AC9C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arriba.Adapter.Cache", "Adapters\Arriba.Adapter.Cache\Arriba.Adapter.Cache.csproj", "{6021319A-7FE8-4832-98C2-AD6C38089408}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arriba.Adapter.Cache", "Adapters\Arriba.Adapter.Cache\Arriba.Adapter.Cache.csproj", "{6021319A-7FE8-4832-98C2-AD6C38089408}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arriba.Adapter.Telemetry", "Adapters\Arriba.Adapter.Telemetry\Arriba.Adapter.Telemetry.csproj", "{8F63816C-67B2-4D6C-BE88-8FB3905CB6FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arriba.Adapter.Telemetry", "Adapters\Arriba.Adapter.Telemetry\Arriba.Adapter.Telemetry.csproj", "{8F63816C-67B2-4D6C-BE88-8FB3905CB6FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arriba.Adapter.ApplicationInsights", "Arriba.Adapter.ApplicationInsights\Arriba.Adapter.ApplicationInsights.csproj", "{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arriba.Adapter.ApplicationInsights", "Arriba.Adapter.ApplicationInsights\Arriba.Adapter.ApplicationInsights.csproj", "{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -224,7 +224,7 @@ Global
 		{53F5BD57-AC78-4300-A619-6D2486A2B2C2} = {F9B80722-DFD9-489A-BE71-E91CF78F5441}
 		{6021319A-7FE8-4832-98C2-AD6C38089408} = {F9B80722-DFD9-489A-BE71-E91CF78F5441}
 		{8F63816C-67B2-4D6C-BE88-8FB3905CB6FD} = {F9B80722-DFD9-489A-BE71-E91CF78F5441}
-		{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87} = {9909F4E7-9E19-4199-B20B-C5811744878A}
+		{FF85FE0F-8FFD-43DA-A96E-36CC7531BD87} = {F9B80722-DFD9-489A-BE71-E91CF78F5441}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1A13044D-76D1-4136-A0F3-415C5D9FF24F}
