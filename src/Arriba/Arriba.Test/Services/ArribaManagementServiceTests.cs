@@ -1,7 +1,9 @@
-﻿using Arriba.Communication.Server.Application;
+﻿using Arriba.Caching;
+using Arriba.Communication.Server.Application;
 using Arriba.Model;
 using Arriba.Model.Column;
 using Arriba.Model.Security;
+using Arriba.Server.Authentication;
 using Arriba.Server.Hosting;
 using Arriba.Structures;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -38,7 +40,8 @@ namespace Arriba.Test.Services
             _owner = GetAuthenticatedUser("user3", PermissionScope.Owner);
 
             _databaseFactory = new DatabaseFactory();
-            var factory = new ArribaManagementServiceFactory(_databaseFactory.GetDatabase());
+            var claimsAuth = new ClaimsAuthenticationService(new MemoryCacheFactory());
+            var factory = new ArribaManagementServiceFactory(_databaseFactory.GetDatabase(), claimsAuth);
 
             _service = factory.CreateArribaManagementService("Users");
             _db = _service.GetDatabaseForOwner(_owner);

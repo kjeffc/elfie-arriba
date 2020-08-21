@@ -1,11 +1,10 @@
-﻿using Arriba.Configuration;
-using Arriba.Configuration;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Arriba.Configuration;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace Arriba.Controllers
 {
@@ -96,7 +95,7 @@ namespace Arriba.Controllers
             Console.WriteLine($"ReadTokenResultAsync result: {result}");
 
             response.EnsureSuccessStatusCode();
-            oAuthToken = JsonConvert.DeserializeObject<OAuthTokenResult>(result);
+            oAuthToken = ArribaConvert.FromJson<OAuthTokenResult>(result);
 
             return oAuthToken;
         }

@@ -5,19 +5,21 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-20.04
+    env:
+      SOLUTION: ./src/Arriba/Arriba.Core.sln
+      OUTPUT_DIR: ./output/bin
+      CONFIGURATION: Release
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.100
-      - name: Build ./src/Arriba.Core.sln Release
-        run: dotnet build ./src/Arriba/Arriba.Core.sln --configuration Release
-      - name: Test ./src/Arriba.Core.sln Release
-        run: dotnet test ./src/Arriba/Arriba.Core.sln --configuration Release -- CollectCoverage=true -- CoverletOutput=TestResults/ -- CoverletOutputFormat=lcov
-      - name: Publish Arriba.Core.sln Release to Arriba/bin
-        run: dotnet build ./src/Arriba/Arriba.Core.sln --configuration Release --output Arriba/bin
+      - name: Build Arriba Solution
+        run: dotnet build $SOLUTION --configuration $CONFIGURATION --output $OUTPUT_DIR
+      - name: Test Arriba Solution
+        run: dotnet test $SOLUTION --configuration $CONFIGURATION --logger:trx
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: Arriba
-          path: ./src/Arriba/bin
+          path: $OUTPUT_DIR

@@ -8,7 +8,7 @@ using Arriba.Model.Column;
 using Arriba.Model.Security;
 using Arriba.Structures;
 
-namespace Arriba.TfsWorkItemCrawler.ItemConsumers
+namespace Arriba.ItemConsumers
 {
     public interface IItemConsumer : IDisposable
     {

@@ -5,7 +5,7 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp3.1</TargetFramework>
-        <RootNamespace>Arriba.WorkItemCrawler</RootNamespace>
+        <RootNamespace>Arriba</RootNamespace>
         <AssemblyName>Arriba.WorkItemCrawler</AssemblyName>
       <OutputPath>..\bin\Debug</OutputPath>
     </PropertyGroup>
@@ -29,11 +29,8 @@
         </None>
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\Arriba.Client\Arriba.Client.csproj">
-            <Project>{35e3e90c-f12e-4eb5-9161-a78ed5ca950f}</Project>
-            <Name>Arriba.Client</Name>
-        </ProjectReference>
-        <ProjectReference Include="..\..\Arriba.Configuration\Arriba.Configuration.csproj" />
+        <ProjectReference Include="..\..\Adapters\Arriba.Adapter.Configuration\Arriba.Adapter.Configuration.csproj" />
+        <ProjectReference Include="..\..\Arriba.Composition\Arriba.Composition.csproj" />
         <ProjectReference Include="..\..\Arriba\Arriba.csproj">
             <Project>{d89b4a01-f637-4147-9737-91a327a9da3f}</Project>
             <Name>Arriba</Name>

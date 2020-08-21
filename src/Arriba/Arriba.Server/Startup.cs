@@ -1,20 +1,18 @@
-﻿using Arriba.Communication;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
+using Arriba.Communication;
 using Arriba.Communication.Server.Application;
-using Arriba.Configuration;
 using Arriba.Configuration;
 using Arriba.Extensions;
 using Arriba.Owin;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace Arriba.Server
 {
@@ -37,12 +35,12 @@ namespace Arriba.Server
             services.AddCors(cors =>
             {
                 cors.AddDefaultPolicy(builder =>
-                {
-                    builder.WithOrigins(new[] { serverConfig.FrontendBaseUrl })
-                        .AllowAnyMethod()
-                        .AllowCredentials()
-                        .AllowAnyHeader();
-                });
+                                        {
+                                            builder.WithOrigins(new[] { serverConfig.FrontendBaseUrl })
+                                                .AllowAnyMethod()
+                                                .AllowCredentials()
+                                                .AllowAnyHeader();
+                                        });
             });
 
             services.AddOAuth(serverConfig);
@@ -63,7 +61,7 @@ namespace Arriba.Server
             app.UseRouting();
             app.UseCors();
             app.UseArribaExceptionMiddleware();
-
+            
             if (serverConfig.EnabledAuthentication)
                 app.UseAuthorization();
 
@@ -86,16 +84,15 @@ namespace Arriba.Server
         {
             var host = GetArribaHost();
 
-            var server = host.GetService<ComposedApplicationServer>();
+            var server = host.GetService<ApplicationServer>();
             var request = new ArribaHttpContextRequest(context, server.ReaderWriter);
             var response = await server.HandleAsync(request, false);
             await Write(request, response, server.ReaderWriter, context);
         }
 
-        private Hosting.Host GetArribaHost()
+        private Composition.Host GetArribaHost()
         {
-            var host = new Arriba.Server.Hosting.Host();
-            host.Add<JsonConverter>(new StringEnumConverter());
+            var host = new Arriba.Composition.Host();
             host.Compose();
             return host;
         }
@@ -151,18 +148,18 @@ namespace Arriba.Server
                 {
                     if (!context.Response.HasStarted)
                     {
-                        context.Response.StatusCode = 500;
+                    context.Response.StatusCode = 500;
 
-                        if (responseBody.CanWrite)
+                    if (responseBody.CanWrite)
+                    {
+                        using (var failureWriter = new StreamWriter(responseBody))
                         {
-                            using (var failureWriter = new StreamWriter(responseBody))
-                            {
-                                var message = String.Format("ERROR: Content writer {0} for content type {1} failed with exception {2}", writer.GetType(), writer.ContentType, writeException.GetType().Name);
-                                await failureWriter.WriteAsync(message);
-                            }
+                            var message = String.Format("ERROR: Content writer {0} for content type {1} failed with exception {2}", writer.GetType(), writer.ContentType, writeException.GetType().Name);
+                            await failureWriter.WriteAsync(message);
                         }
                     }
                 }
+            }
             }
 
             response.Dispose();

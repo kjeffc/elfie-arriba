@@ -3,9 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Arriba.Structures;
 
@@ -17,50 +14,20 @@ namespace Arriba.Test.Structures
     public class PartitionMaskTests
     {
         [TestMethod]
-        public void PartitionMask_Basic()
+        public void PartitionMask_VerifyAllIsZero()
         {
             PartitionMask mask = PartitionMask.All;
 
             // Verify 'All' is count zero, value zero
             Assert.AreEqual(0, mask.BitCount);
             Assert.AreEqual(0, mask.Value);
+        }
 
-            // Everything matches a zero-width mask
-            mask.BitCount = 0;
-            Assert.IsTrue(mask.Matches(0));
-            Assert.IsTrue(mask.Matches(~0));
-            Assert.AreEqual("", mask.ToString());
-
-            // 1* should match values starting with 0x8 only
-            mask.BitCount = 1;
-            mask.Value = (0x1 << 31);
-            Assert.IsFalse(mask.Matches(0));
-            Assert.IsTrue(mask.Matches(~0));
-            Assert.IsTrue(mask.Matches(unchecked((int)0x80000000)));
-            Assert.IsFalse(mask.Matches(0x7FFFFFFF));
-            Assert.AreEqual("1", mask.ToString());
-
-            // 0* should match values without the first bit set
-            mask.BitCount = 1;
-            mask.Value = 0;
-            Assert.IsTrue(mask.Matches(0));
-            Assert.IsFalse(mask.Matches(~0));
-            Assert.IsFalse(mask.Matches(unchecked((int)0x80000000)));
-            Assert.IsTrue(mask.Matches(0x7FFFFFFF));
-            Assert.AreEqual("0", mask.ToString());
-
-            // 11* should match values with the first two bits
-            mask.BitCount = 2;
-            mask.Value = (0x3 << 30);
-            Assert.IsFalse(mask.Matches(0));
-            Assert.IsTrue(mask.Matches(~0));
-            Assert.IsFalse(mask.Matches(unchecked((int)0x80000000)));
-            Assert.IsTrue(mask.Matches(unchecked((int)0xC0000000)));
-            Assert.IsTrue(mask.Matches(unchecked((int)0xE0000000)));
-            Assert.IsFalse(mask.Matches(0x7FFFFFFF));
-            Assert.AreEqual("11", mask.ToString());
-
+        [TestMethod]
+        public void PartitionMask_VerifyBitCountOf4Matches()
+        {
             // 1101* should match values with the first four bits
+            PartitionMask mask = PartitionMask.All;
             mask.BitCount = 4;
             mask.Value = (0xD << 28);
             Assert.IsFalse(mask.Matches(0));
@@ -72,8 +39,72 @@ namespace Arriba.Test.Structures
             Assert.IsFalse(mask.Matches(unchecked((int)0xF0000000)));
             Assert.IsFalse(mask.Matches(unchecked((int)0x7FFFFFFF)));
             Assert.AreEqual("1101", mask.ToString());
+        }
 
+        [TestMethod]
+        public void PartitionMask_VerifyBitCountOf2Matches()
+        {
+            // 11* should match values with the first two bits
+            PartitionMask mask = PartitionMask.All;
+            mask.BitCount = 2;
+            mask.Value = (0x3 << 30);
+            Assert.IsFalse(mask.Matches(0));
+            Assert.IsTrue(mask.Matches(~0));
+            Assert.IsFalse(mask.Matches(unchecked((int)0x80000000)));
+            Assert.IsTrue(mask.Matches(unchecked((int)0xC0000000)));
+            Assert.IsTrue(mask.Matches(unchecked((int)0xE0000000)));
+            Assert.IsFalse(mask.Matches(0x7FFFFFFF));
+            Assert.AreEqual("11", mask.ToString());
+        }
+
+        [TestMethod]
+        public void PartitionMask_VerifyZeroDoesNotMatchFirstBit()
+        {
+            // 0* should match values without the first bit set
+            PartitionMask mask = PartitionMask.All;
+            mask.BitCount = 1;
+            mask.Value = 0;
+            Assert.IsTrue(mask.Matches(0));
+            Assert.IsFalse(mask.Matches(~0));
+            Assert.IsFalse(mask.Matches(unchecked((int)0x80000000)));
+            Assert.IsTrue(mask.Matches(0x7FFFFFFF));
+            Assert.AreEqual("0", mask.ToString());
+
+        }
+
+
+        [TestMethod]
+        public void PartitionMask_VerifyOnlyMatchesOnFirstBit()
+        {
+            // 1* should match values starting with 0x8 only
+            PartitionMask mask = PartitionMask.All;
+            mask.BitCount = 1;
+            mask.Value = (0x1 << 31);
+            Assert.IsFalse(mask.Matches(0));
+            Assert.IsTrue(mask.Matches(~0));
+            Assert.IsTrue(mask.Matches(unchecked((int)0x80000000)));
+            Assert.IsFalse(mask.Matches(0x7FFFFFFF));
+            Assert.AreEqual("1", mask.ToString());
+        }
+
+        [TestMethod]
+        public void PartitionMask_VeryifyEverythingMatchesZeroWithMask()
+        {
+            // Everything matches a zero-width mask
+            PartitionMask mask = PartitionMask.All;
+            mask.BitCount = 0;
+            Assert.IsTrue(mask.Matches(0));
+            Assert.IsTrue(mask.Matches(~0));
+            Assert.AreEqual("", mask.ToString());
+        }
+
+        [TestMethod]
+        public void PartitionMask_VerifyAllIsNotAltered()
+        { 
             // Verify 'All' has not been altered by copy/use
+            PartitionMask mask = PartitionMask.All;
+            mask.BitCount = 1;
+            mask.Value = 2;
             Assert.AreEqual(0, PartitionMask.All.BitCount);
             Assert.AreEqual(0, PartitionMask.All.Value);
         }

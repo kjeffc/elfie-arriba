@@ -12,7 +12,7 @@ using Arriba.Serialization;
 using Arriba.Serialization.Csv;
 using Arriba.Structures;
 
-namespace Arriba.TfsWorkItemCrawler.ItemConsumers
+namespace Arriba.ItemConsumers
 {
     public class CsvWriterItemConsumer : IItemConsumer
     {

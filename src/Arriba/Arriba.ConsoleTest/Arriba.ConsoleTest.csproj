@@ -5,7 +5,7 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>Arriba.ConsoleTest</RootNamespace>
+    <RootNamespace>Arriba</RootNamespace>
     <AssemblyName>Arriba.ConsoleTest</AssemblyName>
 
     </PropertyGroup>
@@ -13,10 +13,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Arriba.Query\Arriba.Query.csproj">
-      <Project>{e4d3ab4b-b37e-42a5-a718-33b419ea0170}</Project>
-      <Name>Arriba.Query</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Arriba.Test\Arriba.Test.csproj">
       <Project>{2451f923-391d-4c16-87d0-32fcdb451998}</Project>
       <Name>Arriba.Test</Name>

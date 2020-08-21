@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Arriba.Model.Column;
 using Arriba.Structures;
 
-namespace Arriba.TfsWorkItemCrawler.ItemProviders
+namespace Arriba.ItemProviders
 {
     public interface IItemProvider : IDisposable
     {

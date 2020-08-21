@@ -11,7 +11,7 @@ using Arriba.Model.Security;
 using Arriba.Structures;
 using Arriba.Types;
 
-namespace Arriba.TfsWorkItemCrawler.ItemConsumers
+namespace Arriba.ItemConsumers
 {
     /// <summary>
     ///  An IItemConsumer which indexes items into an Arriba table using the

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>Arriba.Test</RootNamespace>
+    <RootNamespace>Arriba</RootNamespace>
     <AssemblyName>Arriba.Test</AssemblyName>
     <IsPackable>false</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -14,15 +14,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="10.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Arriba.Client\Arriba.Client.csproj">
-      <Project>{35e3e90c-f12e-4eb5-9161-a78ed5ca950f}</Project>
-      <Name>Arriba.Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Arriba.Communication\Arriba.Communication.csproj">
-      <Project>{7dcfe5a1-cdbf-426f-bd57-225443651238}</Project>
-      <Name>Arriba.Communication</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Arriba.Configuration\Arriba.Configuration.csproj" />
+    <ProjectReference Include="..\Adapters\Arriba.Adapter.Configuration\Arriba.Adapter.Configuration.csproj" />
+    <ProjectReference Include="..\Arriba.Composition\Arriba.Composition.csproj" />
     <ProjectReference Include="..\Arriba.Server\Arriba.Server.csproj">
       <Project>{e23fb68b-e2fd-478b-a6f3-200f5c91b4f8}</Project>
       <Name>Arriba.Server</Name>

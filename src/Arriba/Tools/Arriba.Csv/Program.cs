@@ -7,17 +7,15 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Arriba.Client.Serialization.Json;
 using Arriba.Configuration;
 using Arriba.Extensions;
 using Arriba.Model;
 using Arriba.Model.Column;
 using Arriba.Model.Query;
-using Arriba.Structures;
-using Newtonsoft.Json;
 using Arriba.Model.Security;
-using Microsoft.CodeAnalysis.Elfie.Serialization;
+using Arriba.Structures;
 using Microsoft.CodeAnalysis.Elfie.Model.Strings;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
 
 namespace Arriba.Csv
 {
@@ -47,8 +45,6 @@ namespace Arriba.Csv
       Arriba.Csv mode=build table=SP500 csvPath=""C:\Temp\SP500 Price History.csv"" maximumCount=50000
       Arriba.Csv mode=query table=SP500 select=""Date, Adj Close"" count=30
 ";
-        private static JsonSerializerSettings s_serializerSettings = new JsonSerializerSettings() { Formatting = Formatting.Indented, Converters = ConverterFactory.GetArribaConverters() };
-
         public enum AddMode
         {
             Build = 0,
@@ -326,7 +322,7 @@ namespace Arriba.Csv
         private static CombinedSettings LoadSettings(string settingsJsonPath)
         {
             string settingsJson = File.ReadAllText(settingsJsonPath);
-            return JsonConvert.DeserializeObject<CombinedSettings>(settingsJson, s_serializerSettings);
+            return ArribaConvert.FromJson<CombinedSettings>(settingsJson);
         }
 
         private static void GetSettings(string tableName, string settingsJsonPath)
@@ -342,7 +338,7 @@ namespace Arriba.Csv
             settings.ItemCountLimit = t.PartitionCount * ushort.MaxValue;
             settings.Schema = new List<ColumnDetails>(t.ColumnDetails);
 
-            string settingsJson = JsonConvert.SerializeObject(settings, s_serializerSettings);
+            string settingsJson = ArribaConvert.ToJson(settings);
             File.WriteAllText(settingsJsonPath, settingsJson);
         }
 

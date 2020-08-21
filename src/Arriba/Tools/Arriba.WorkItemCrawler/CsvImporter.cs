@@ -3,12 +3,11 @@
 
 using System;
 using System.Diagnostics;
-
+using Arriba.ItemConsumers;
+using Arriba.ItemProviders;
 using Arriba.Structures;
-using Arriba.TfsWorkItemCrawler.ItemConsumers;
-using Arriba.TfsWorkItemCrawler.ItemProviders;
 
-namespace Arriba.TfsWorkItemCrawler
+namespace Arriba
 {
     internal class CsvImporter
     {
@@ -21,21 +20,21 @@ namespace Arriba.TfsWorkItemCrawler
 
         public CsvImporter(CrawlerConfiguration config, string configurationName, string changedDateColumn)
         {
-            this.Configuration = config;
-            this.ConfigurationName = configurationName;
-            this.ChangedDateColumn = changedDateColumn;
+            Configuration = config;
+            ConfigurationName = configurationName;
+            ChangedDateColumn = changedDateColumn;
         }
 
         public void Import(IItemConsumer consumer)
         {
-            DateTimeOffset lastCutoffWritten = ItemProviderUtilities.LoadLastCutoff(this.Configuration.ArribaTable, this.ConfigurationName + ".CSV", false);
+            DateTimeOffset lastCutoffWritten = ItemProviderUtilities.LoadLastCutoff(Configuration.ArribaTable, ConfigurationName + ".CSV", false);
             Stopwatch saveWatch = null;
 
             CsvReaderItemProvider provider = null;
 
             try
             {
-                provider = new CsvReaderItemProvider(this.Configuration.ArribaTable, this.ChangedDateColumn, lastCutoffWritten, DateTime.UtcNow);
+                provider = new CsvReaderItemProvider(Configuration.ArribaTable, ChangedDateColumn, lastCutoffWritten, DateTime.UtcNow);
 
                 while (true)
                 {
@@ -50,7 +49,7 @@ namespace Arriba.TfsWorkItemCrawler
 
                     // Track the last item changed date
                     DateTime lastItemInBlock;
-                    Value.Create(block[block.RowCount - 1, block.IndexOfColumn(this.ChangedDateColumn)]).TryConvert<DateTime>(out lastItemInBlock);
+                    Value.Create(block[block.RowCount - 1, block.IndexOfColumn(ChangedDateColumn)]).TryConvert(out lastItemInBlock);
                     if (lastItemInBlock > lastCutoffWritten)
                     {
                         lastCutoffWritten = lastItemInBlock;
@@ -80,7 +79,7 @@ namespace Arriba.TfsWorkItemCrawler
             Trace.WriteLine("Save Complete.");
 
             // Record the new last cutoff written
-            ItemProviderUtilities.SaveLastCutoff(this.Configuration.ArribaTable, this.ConfigurationName + ".CSV", lastCutoffWritten);
+            ItemProviderUtilities.SaveLastCutoff(Configuration.ArribaTable, ConfigurationName + ".CSV", lastCutoffWritten);
         }
     }
 }

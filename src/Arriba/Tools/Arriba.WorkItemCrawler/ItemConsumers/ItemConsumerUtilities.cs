@@ -4,7 +4,7 @@
 using Arriba.ParametersCheckers;
 using System;
 
-namespace Arriba.TfsWorkItemCrawler.ItemConsumers
+namespace Arriba.ItemConsumers
 {
     public static class ItemConsumerUtilities
     {

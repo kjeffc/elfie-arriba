@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Arriba.TfsWorkItemCrawler.ItemProviders
+namespace Arriba.ItemProviders
 {
     public class ItemIdentity
     {
@@ -13,25 +13,25 @@ namespace Arriba.TfsWorkItemCrawler.ItemProviders
 
         public ItemIdentity(int id, DateTimeOffset changedDate)
         {
-            this.ID = id;
-            this.ChangedDate = changedDate;
+            ID = id;
+            ChangedDate = changedDate;
         }
 
         public override bool Equals(object o)
         {
             if (!(o is ItemIdentity)) return false;
             ItemIdentity other = (ItemIdentity)o;
-            return this.ID.Equals(other.ID) && this.ChangedDate.Equals(other.ChangedDate);
+            return ID.Equals(other.ID) && ChangedDate.Equals(other.ChangedDate);
         }
 
         public override int GetHashCode()
         {
-            return this.ID.GetHashCode() ^ this.ChangedDate.GetHashCode();
+            return ID.GetHashCode() ^ ChangedDate.GetHashCode();
         }
 
         public override string ToString()
         {
-            return String.Format("{0:n0} | {1:s}", this.ID, this.ChangedDate);
+            return string.Format("{0:n0} | {1:s}", ID, ChangedDate);
         }
     }
 

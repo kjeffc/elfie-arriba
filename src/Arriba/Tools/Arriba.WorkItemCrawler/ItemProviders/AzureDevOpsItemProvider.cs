@@ -1,9 +1,4 @@
-﻿using Arriba.Extensions;
-using Arriba.Model.Column;
-using Arriba.Structures;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -12,8 +7,12 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Arriba.Extensions;
+using Arriba.Model.Column;
+using Arriba.Structures;
+using Newtonsoft.Json.Linq;
 
-namespace Arriba.TfsWorkItemCrawler.ItemProviders
+namespace Arriba.ItemProviders
 {
     public class AzureDevOpsItemProvider : IItemProvider
     {
@@ -24,15 +23,15 @@ namespace Arriba.TfsWorkItemCrawler.ItemProviders
 
         public AzureDevOpsItemProvider(string organization, string project, string pat, IList<string> workitemTypes = null)
         {
-            this.BaseUri = new Uri($"https://dev.azure.com/{organization}/{project}/");
-            this.AnalyticsUri = new Uri($"https://analytics.dev.azure.com/{organization}/{project}/");
+            BaseUri = new Uri($"https://dev.azure.com/{organization}/{project}/");
+            AnalyticsUri = new Uri($"https://analytics.dev.azure.com/{organization}/{project}/");
 
-            this.Organization = organization;
-            this.Project = project;
-            this.WorkItemConstraint = GetWorkItemConstraint(workitemTypes);
+            Organization = organization;
+            Project = project;
+            WorkItemConstraint = GetWorkItemConstraint(workitemTypes);
 
-            this.Http = AzureDevOpsItemProvider.GetClient(ToBase64($"Basic:{pat}"));
-            this.Columns = new Lazy<Task<IList<ColumnDetails>>>(this.ReadColumnsAsync);
+            Http = GetClient(ToBase64($"Basic:{pat}"));
+            Columns = new Lazy<Task<IList<ColumnDetails>>>(ReadColumnsAsync);
         }
 
         public string Organization { get; }
@@ -56,7 +55,7 @@ namespace Arriba.TfsWorkItemCrawler.ItemProviders
 
         public async Task<IList<ColumnDetails>> GetColumnsAsync()
         {
-            return await this.Columns.Value;
+            return await Columns.Value;
         }
 
 
@@ -98,7 +97,7 @@ namespace Arriba.TfsWorkItemCrawler.ItemProviders
                     catch (Exception ex)
                     {
                         result[itemIndex, fieldIndex] = null;
-                        Trace.WriteLine(String.Format("Error Getting '{0}' from item {1}. Skipping field. Detail: {2}", c.Name, item.Id, ex.ToString()));
+                        Trace.WriteLine(string.Format("Error Getting '{0}' from item {1}. Skipping field. Detail: {2}", c.Name, item.Id, ex.ToString()));
                     }
 
                     fieldIndex++;
@@ -127,8 +126,8 @@ namespace Arriba.TfsWorkItemCrawler.ItemProviders
 
         private async Task<ColumnDetails> GetColumnFromName(string columnName)
         {
-            var set = await this.Columns.Value;
-            return set.First(x => String.Equals(x.Name, columnName, StringComparison.OrdinalIgnoreCase));
+            var set = await Columns.Value;
+            return set.First(x => string.Equals(x.Name, columnName, StringComparison.OrdinalIgnoreCase));
         }
 
         public async Task<IList<ItemIdentity>> GetItemsChangedBetweenAsync(DateTimeOffset start, DateTimeOffset end)
@@ -138,7 +137,7 @@ namespace Arriba.TfsWorkItemCrawler.ItemProviders
             if (!IsSuccessFull(webRequest.StatusCode))
                 throw new ArribaException($"Error performing request: Status code: {webRequest.StatusCode}");
             var json = await webRequest.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeObject<ValueRequest<IList<AzureDevOpsChangedWorkItem>>>(json);
+            var result = ArribaConvert.FromJson<ValueRequest<IList<AzureDevOpsChangedWorkItem>>>(json);
 
             if (result != null)
                 return result.Value
@@ -157,7 +156,7 @@ namespace Arriba.TfsWorkItemCrawler.ItemProviders
 
         private async Task<IList<ColumnDetails>> ReadColumnsAsync()
         {
-            return (await this.GetSystemFieldsAsync())
+            return (await GetSystemFieldsAsync())
                 .Select(x =>
                 {
                     bool primaryKey = string.Equals(x.ReferenceName, "System.Id", StringComparison.OrdinalIgnoreCase);
@@ -218,7 +217,7 @@ namespace Arriba.TfsWorkItemCrawler.ItemProviders
             Uri fieldsUri = GetUri("_apis/wit/fields");
             var webRequest = await Http.GetAsync(fieldsUri);
             var json = await webRequest.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeObject<ValueRequest<IList<AzureDevOpsFieldDefinition>>>(json);
+            var result = ArribaConvert.FromJson<ValueRequest<IList<AzureDevOpsFieldDefinition>>>(json);
             return result.Value;
         }
 
@@ -228,10 +227,10 @@ namespace Arriba.TfsWorkItemCrawler.ItemProviders
 
             foreach (var batch in items.Page(200))
             {
-                var uri = GetUri($"_apis/wit/workitems/?ids={String.Join(",", batch.Select(x => x.ID))}");
+                var uri = GetUri($"_apis/wit/workitems/?ids={string.Join(",", batch.Select(x => x.ID))}");
                 var webRequest = await Http.GetAsync(uri);
                 var json = await webRequest.Content.ReadAsStringAsync();
-                var jsonResult = JsonConvert.DeserializeObject<ValueRequest<IList<AzWorkItem>>>(json);
+                var jsonResult = ArribaConvert.FromJson<ValueRequest<IList<AzWorkItem>>>(json);
                 result.AddRange(jsonResult.Value);
             }
 
@@ -240,7 +239,7 @@ namespace Arriba.TfsWorkItemCrawler.ItemProviders
 
         private Uri GetUri(string uriPart)
         {
-            var uri = new Uri(this.BaseUri, uriPart);
+            var uri = new Uri(BaseUri, uriPart);
 
             const string apiVersion = "api-version=5.0";
 
@@ -258,7 +257,7 @@ namespace Arriba.TfsWorkItemCrawler.ItemProviders
 
         private Uri GetAnalyticsUri(string uriPart)
         {
-            return new Uri(this.AnalyticsUri, uriPart);
+            return new Uri(AnalyticsUri, uriPart);
         }
 
         private string GetWorkItemConstraint(IList<string> workitemTypes)
@@ -268,7 +267,7 @@ namespace Arriba.TfsWorkItemCrawler.ItemProviders
             if (workitemTypes != null && workitemTypes.Count > 0)
             {
                 var list = workitemTypes.Select(x => $"WorkItemType eq '{x}'");
-                result = $"and({String.Join(" or ", list)})";
+                result = $"and({string.Join(" or ", list)})";
             }
 
             return result;

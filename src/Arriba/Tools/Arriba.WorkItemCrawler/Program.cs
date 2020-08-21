@@ -7,12 +7,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Arriba.Composition;
 using Arriba.Configuration;
+using Arriba.ItemConsumers;
+using Arriba.ItemProviders;
 using Arriba.Model.Column;
-using Arriba.TfsWorkItemCrawler.ItemConsumers;
-using Arriba.TfsWorkItemCrawler.ItemProviders;
 
-namespace Arriba.TfsWorkItemCrawler
+namespace Arriba
 {
     internal class Program
     {
@@ -26,13 +27,14 @@ namespace Arriba.TfsWorkItemCrawler
                 return -1;
             }
 
+            ArribaServices.Initialize();
             var configLoader = new ArribaConfigurationLoader(args);
             var configurationName = configLoader.GetStringValue("configName");
             var mode = configLoader.GetStringValue("mode", "-i").ToLowerInvariant();
             Trace.WriteLine("Launching Crawler");
             Trace.WriteLine($"Using configName: {configurationName} mode:{mode}");
 
-            using (FileLock locker = FileLock.TryGet(String.Format("Arriba.TfsWorkItemCrawler.{0}.lock", configurationName)))
+            using (FileLock locker = FileLock.TryGet(string.Format("Arriba.TfsWorkItemCrawler.{0}.lock", configurationName)))
             {
                 try
                 {
@@ -76,14 +78,14 @@ namespace Arriba.TfsWorkItemCrawler
                 {
                     foreach (Exception inner in ex.InnerExceptions)
                     {
-                        Trace.TraceError(String.Format("ERROR: {0}\r\n{1}", Environment.CommandLine, inner));
+                        Trace.TraceError(string.Format("ERROR: {0}\r\n{1}", Environment.CommandLine, inner));
                     }
 
                     return -2;
                 }
                 catch (Exception ex)
                 {
-                    Trace.TraceError(String.Format("ERROR: {0}\r\n{1}", Environment.CommandLine, ex));
+                    Trace.TraceError(string.Format("ERROR: {0}\r\n{1}", Environment.CommandLine, ex));
                     return -2;
                 }
             }
@@ -93,7 +95,7 @@ namespace Arriba.TfsWorkItemCrawler
         {
             var d = new DirectoryInfo(Directory.GetCurrentDirectory());
             var configPath = Path.Combine("Databases", configurationName, "appsettings.json");
-            var result = String.Empty;
+            var result = string.Empty;
 
             while (d != null)
             {
@@ -102,7 +104,8 @@ namespace Arriba.TfsWorkItemCrawler
                 {
                     break;
                 }
-                else {
+                else
+                {
                     Trace.WriteLine($"Probing {result}");
                     result = null;
                     d = d.Parent;

@@ -1,12 +1,9 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Arriba.Client.Serialization.Json;
 using Arriba.Structures;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Newtonsoft.Json;
 
 namespace Arriba.Test.Serialization.Json
 {
@@ -21,14 +18,9 @@ namespace Arriba.Test.Serialization.Json
             items.SetColumn(1, new object[] { 0, 3, 1, 3, 3 });
             items.SetColumn(2, new object[] { "Sample One", "Sample Two", "Sample Three", "Sample Four", "" });
 
-            JsonSerializerSettings settings = new JsonSerializerSettings();
-            settings.Converters.Add(new DataBlockJsonConverter());
-            settings.Converters.Add(new ColumnDetailsJsonConverter());
-            settings.Converters.Add(new ValueJsonConverter());
+            string serialized = ArribaConvert.ToJson(items);
 
-            string serialized = JsonConvert.SerializeObject(items, settings);
-
-            DataBlock itemsRoundTripped = JsonConvert.DeserializeObject<DataBlock>(serialized, settings);
+            DataBlock itemsRoundTripped = ArribaConvert.FromJson<DataBlock>(serialized);
             Assert.AreEqual(items.RowCount, itemsRoundTripped.RowCount);
             Assert.AreEqual(items.ColumnCount, itemsRoundTripped.ColumnCount);
 

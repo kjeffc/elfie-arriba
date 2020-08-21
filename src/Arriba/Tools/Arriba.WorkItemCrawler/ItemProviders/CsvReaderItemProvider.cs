@@ -6,16 +6,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-
-using Arriba.Diagnostics;
+using Arriba.ItemConsumers;
 using Arriba.Serialization;
 using Arriba.Serialization.Csv;
 using Arriba.Structures;
-using Arriba.TfsWorkItemCrawler.ItemConsumers;
-using Arriba.TfsWorkItemCrawler.ItemProviders;
 
-namespace Arriba.TfsWorkItemCrawler
+namespace Arriba.ItemProviders
 {
     // Fix scanning to skip rows before the changed date is into the range.
     // Read only to the end of the range.
@@ -44,13 +40,13 @@ namespace Arriba.TfsWorkItemCrawler
             start = start.ToUniversalTime();
             end = end.ToUniversalTime();
 
-            this.TableName = tableName;
-            this.ChangedDateColumn = changedDateColumn;
-            this.Start = start;
-            this.End = end;
+            TableName = tableName;
+            ChangedDateColumn = changedDateColumn;
+            Start = start;
+            End = end;
 
             // Find the set of CSVs to crawl the desired interval
-            this.RemainingCsvs = new Queue<string>(FindCsvsBetween(start, end));
+            RemainingCsvs = new Queue<string>(FindCsvsBetween(start, end));
 
             // Open the first one and get the first row
             MoveNextCsv();
@@ -59,18 +55,18 @@ namespace Arriba.TfsWorkItemCrawler
         public DataBlock GetNextBlock(int maximumCount)
         {
             // If there were no matching CSVs, return immediately
-            if (this.CurrentRowEnumerator == null) return null;
+            if (CurrentRowEnumerator == null) return null;
 
-            DataBlock block = new DataBlock(this.CurrentCsvReader.ColumnNames, maximumCount);
+            DataBlock block = new DataBlock(CurrentCsvReader.ColumnNames, maximumCount);
             int rowCount = 0;
 
             // Read up to maximumCount rows from remaining CSVs
             do
             {
-                while (this.CurrentRowEnumerator.MoveNext())
+                while (CurrentRowEnumerator.MoveNext())
                 {
                     // Copy this row to the block
-                    CsvRow row = this.CurrentRowEnumerator.Current;
+                    CsvRow row = CurrentRowEnumerator.Current;
                     for (int columnIndex = 0; columnIndex < block.ColumnCount; ++columnIndex)
                     {
                         block.SetValue(rowCount, columnIndex, row[columnIndex]);
@@ -93,12 +89,12 @@ namespace Arriba.TfsWorkItemCrawler
 
         public void Dispose()
         {
-            if (this.CurrentCsvReader != null)
+            if (CurrentCsvReader != null)
             {
-                this.CurrentCsvReader.Dispose();
+                CurrentCsvReader.Dispose();
 
-                this.CurrentCsvReader = null;
-                this.CurrentRowEnumerator = null;
+                CurrentCsvReader = null;
+                CurrentRowEnumerator = null;
             }
         }
 
@@ -121,7 +117,7 @@ namespace Arriba.TfsWorkItemCrawler
         {
             List<string> result = new List<string>();
 
-            string csvFolderPath = Path.Combine(BinarySerializable.CachePath, String.Format(CsvWriterItemConsumer.CsvPathForTable, this.TableName));
+            string csvFolderPath = Path.Combine(BinarySerializable.CachePath, string.Format(CsvWriterItemConsumer.CsvPathForTable, TableName));
             foreach (string csvFilePath in BinarySerializable.EnumerateUnder(csvFolderPath))
             {
                 if (Path.GetExtension(csvFilePath).Equals(".csv", StringComparison.OrdinalIgnoreCase))
@@ -150,7 +146,7 @@ namespace Arriba.TfsWorkItemCrawler
 
         private bool MoveNextCsv()
         {
-            if (this.RemainingCsvs.Count == 0)
+            if (RemainingCsvs.Count == 0)
             {
                 Trace.WriteLine("All CSVs read. Done.");
                 return false;
@@ -160,10 +156,10 @@ namespace Arriba.TfsWorkItemCrawler
             Dispose();
 
             // Open the next CSV and get the first row
-            string nextCsvPath = this.RemainingCsvs.Dequeue();
+            string nextCsvPath = RemainingCsvs.Dequeue();
             Trace.WriteLine("Loading CSV data from '{0}'", nextCsvPath);
-            this.CurrentCsvReader = new CsvReader(new FileStream(nextCsvPath, FileMode.Open), new CsvReaderSettings() { MaximumSingleCellLines = -1 });
-            this.CurrentRowEnumerator = this.CurrentCsvReader.Rows.GetEnumerator();
+            CurrentCsvReader = new CsvReader(new FileStream(nextCsvPath, FileMode.Open), new CsvReaderSettings() { MaximumSingleCellLines = -1 });
+            CurrentRowEnumerator = CurrentCsvReader.Rows.GetEnumerator();
 
             return true;
         }

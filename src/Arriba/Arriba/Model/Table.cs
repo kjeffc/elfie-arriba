@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
@@ -426,72 +426,64 @@ namespace Arriba.Model
         ///  and must be the first column. If an ID is not known, the item will be added.
         ///  For each item, the value for each column is set to the provided values.
         /// </summary>
-        /// <param name="values">Set of Columns and values to add or update</param>
+        /// <param name="datablock">Set of Columns and values to add or update</param>
         /// <param name="options">Options to adjust behavior of AddOrUpdate</param>
-        public void AddOrUpdate(DataBlock.ReadOnlyDataBlock values, AddOrUpdateOptions options)
+        public void AddOrUpdate(DataBlock.ReadOnlyDataBlock datablock, AddOrUpdateOptions options)
         {
             _locker.EnterWriteLock();
             try
             {
                 // Add columns from data, if this is the first data and columns weren't predefined
-                if (options.AddMissingColumns) AddColumnsFromBlock(values);
+                if (options.AddMissingColumns) AddColumnsFromBlock(datablock);
 
                 ColumnDetails idColumn = _partitions[0].IDColumn;
                 if (idColumn == null) throw new ArribaException("Items cannot be added to this Table because it does not yet have an ID column defined. Call AddColumn with exactly one column with 'IsPrimaryKey' true and then items may be added.");
-                int idColumnIndex = values.IndexOfColumn(idColumn.Name);
+                int idColumnIndex = datablock.IndexOfColumn(idColumn.Name);
                 if (idColumnIndex == -1) throw new ArribaException(StringExtensions.Format("AddOrUpdates must be passed the ID column, '{0}', in order to tell which items to update.", idColumn.Name));
 
                 // Verify all passed columns exist (if not adding them)
                 if (options.AddMissingColumns == false)
                 {
-                    foreach (ColumnDetails column in values.Columns)
-                    {
-                        ColumnDetails foundColumn;
-                        if (!_partitions[0].DetailsByColumn.TryGetValue(column.Name, out foundColumn))
-                        {
-                            throw new ArribaException(StringExtensions.Format("AddOrUpdate failed because values were passed for column '{0}', which is not in the table. Use AddColumn to add all columns first or ensure the first block added to the Table has all desired columns.", column.Name));
-                        }
-                    }
+                    VerifyNoColumnsAreMissing(datablock);
                 }
 
                 // Non-Parallel Implementation
                 if (_partitions.Count == 1)
                 {
-                    _partitions[0].AddOrUpdate(values, options);
+                    _partitions[0].AddOrUpdate(datablock, options);
                     return;
                 }
 
                 // Determine the partition each item should go to
                 int[] partitionIds;
                 TargetPartitionInfo[] partitionInfo;
-                Type idColumnArrayType = values.GetTypeForColumn(idColumnIndex);
+                Type idColumnArrayType = datablock.GetTypeForColumn(idColumnIndex);
                 if (_splitter == null || _splitter.Item2 == null || _splitter.Item1 != idColumnArrayType)
                 {
                     IComputePartition splitter = NativeContainer.CreateTypedInstance<IComputePartition>(typeof(ComputePartitionHelper<>), idColumnArrayType);
                     _splitter = Tuple.Create(idColumnArrayType, splitter);
                 }
-                _splitter.Item2.ComputePartition(this, values, idColumnIndex, out partitionIds, out partitionInfo);
+                _splitter.Item2.ComputePartition(this, datablock, idColumnIndex, out partitionIds, out partitionInfo);
 
                 // Sort/group the incoming items by paritition and then by index to ensure they 
                 // are processed in the order they were presented in the input ReadOnlyDataBlock
-                int[] sortOrder = new int[values.RowCount];
-                for (int i = 0; i < values.RowCount; ++i)
+                int[] sortOrder = new int[datablock.RowCount];
+                for (int i = 0; i < datablock.RowCount; ++i)
                 {
-                    int p = partitionIds[i];
-                    int startIndex = partitionInfo[p].StartIndex + partitionInfo[p].Count;
-                    sortOrder[startIndex] = i;
-                    partitionInfo[p].Count++;
+                    var p = partitionIds[i];
+                    var sortIndex = partitionInfo[p].NextIndex;
+                    sortOrder[sortIndex] = i;
+                    partitionInfo[p].IncrementIndex();
                 }
 
                 Action<Tuple<int, int>, ParallelLoopState> forBody =
                     delegate (Tuple<int, int> range, ParallelLoopState unused)
                     {
-                        for (int p = range.Item1; p < range.Item2; ++p)
+                        for (int partitionIndex = range.Item1; partitionIndex < range.Item2; ++partitionIndex)
                         {
-                            int startIndex = partitionInfo[p].StartIndex;
-                            int length = partitionInfo[p].Count;
-                            DataBlock.ReadOnlyDataBlock partitionValues = values.ProjectChain(sortOrder, startIndex, length);
-                            _partitions[p].AddOrUpdate(partitionValues, options);
+                            var partition = partitionInfo[partitionIndex];
+                            DataBlock.ReadOnlyDataBlock partitionBlock = datablock.ProjectChain(sortOrder, partition.StartIndex, partition.Count);
+                            _partitions[partitionIndex].AddOrUpdate(partitionBlock, options);
                         }
                     };
 
@@ -513,10 +505,35 @@ namespace Arriba.Model
             }
         }
 
+        private void VerifyNoColumnsAreMissing(DataBlock.ReadOnlyDataBlock values)
+        {
+            foreach (ColumnDetails column in values.Columns)
+            {
+                ColumnDetails foundColumn;
+                if (!_partitions[0].DetailsByColumn.TryGetValue(column.Name, out foundColumn))
+                {
+                    throw new ArribaException(StringExtensions.Format("AddOrUpdate failed because values were passed for column '{0}', which is not in the table. Use AddColumn to add all columns first or ensure the first block added to the Table has all desired columns.", column.Name));
+                }
+            }
+        }
+
         private struct TargetPartitionInfo
         {
             public int StartIndex;
             public int Count;
+
+            public int NextIndex
+            {
+                get
+                {
+                    return StartIndex + Count;
+                }
+            }
+
+            public void IncrementIndex()
+            {
+                Count++;
+            }
         }
         #endregion
 
@@ -674,15 +691,11 @@ namespace Arriba.Model
                 Parallel.ForEach(rangePartitioner,
                     delegate (Tuple<int, int> range, ParallelLoopState unused)
                     {
-                        ValueTypeReference<T> vtr = new ValueTypeReference<T>();
-                        Value v = Value.Create(null);
+                        PartitionConvert<T> p = new PartitionConvert<T>(table._partitionBits);
+                        
                         for (int i = range.Item1; i < range.Item2; ++i)
                         {
-                            // Hash the ID for each item and compute the partition that the item belongs to
-                            vtr.Value = idColumn[i];
-                            v.Assign(vtr);
-                            int idHash = v.GetHashCode();
-                            int partitionId = PartitionMask.IndexOfHash(idHash, table._partitionBits);
+                            int partitionId = p.GetPartition(idColumn[i]);
 
                             localPartitionIds[i] = partitionId;
                             Interlocked.Increment(ref localPartitionInfo[partitionId].Count);
@@ -797,14 +810,17 @@ namespace Arriba.Model
 
                 string tablePath = TableCachePath(tableName);
 
+                var orderedPartitions = new SortedList<uint, Partition>();
+                
                 if (partitions != null)
                 {
                     foreach (string partitionFile in partitions)
                     {
                         Partition p = new Partition();
                         p.Read(Path.Combine(tablePath, partitionFile + ".bin"));
-                        _partitions.Add(p);
+                        orderedPartitions.Add((uint)p.Mask.Value, p);
                     }
+
                 }
                 else
                 {
@@ -815,13 +831,20 @@ namespace Arriba.Model
                         {
                             Partition p = new Partition();
                             p.Read(partitionFile);
-                            _partitions.Add(p);
+                            orderedPartitions.Add((uint)p.Mask.Value, p);
                         }
                     }
                 }
 
-                // If there are no partitions to load, re-add the default 'all' one
-                if (_partitions.Count == 0) _partitions.Add(new Partition(PartitionMask.All));
+                if (orderedPartitions.Count > 0)
+                {
+                    _partitions.AddRange(orderedPartitions.Values);
+                } 
+                else
+                {
+                    // If there are no partitions to load, re-add the default 'all' one
+                    _partitions.Add(new Partition(PartitionMask.All));
+                }
 
                 // Reset the number of partition bits
                 _partitionBits = _partitions[0].Mask.BitCount;
@@ -922,5 +945,27 @@ namespace Arriba.Model
             }
         }
         #endregion
+    }
+
+    public class PartitionConvert<T>
+    {
+        private readonly ValueTypeReference<T> vtr = new ValueTypeReference<T>();
+        private readonly Value v = Value.Create(null);
+        private readonly byte _partitionBits;
+
+        public PartitionConvert(byte partitionBits)
+        {
+            _partitionBits = partitionBits;
+        }
+
+        public int GetPartition(T value)
+        {
+            // Hash the ID for each item and compute the partition that the item belongs to
+            vtr.Value = value;
+            v.Assign(vtr);
+            int idHash = v.GetHashCode();
+            int partitionId = PartitionMask.IndexOfHash(idHash, _partitionBits);
+            return partitionId;
+        }
     }
 }
