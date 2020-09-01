@@ -11,7 +11,7 @@ namespace Arriba.Test.Services
         [DataRow("foo")]
         public void DeleteTableForUserTableNotFound(string tableName)
         {
-            Assert.ThrowsException<TableNotFoundException>(() => _service.DeleteTableForUser(tableName, _owner));
+            Assert.ThrowsException<TableNotFoundException>(() => _service.DeleteTableForUser(tableName, _telemetry, _owner));
         }
 
         [DataTestMethod]
@@ -20,14 +20,14 @@ namespace Arriba.Test.Services
         [DataRow("")]
         public void DeleteTableForUserTableNameMissing(string tableName)
         {
-            Assert.ThrowsException<ArgumentException>(() => _service.DeleteTableForUser(tableName, _owner));
+            Assert.ThrowsException<ArgumentException>(() => _service.DeleteTableForUser(tableName, _telemetry, _owner));
         }
 
         [DataTestMethod]
         [DataRow(TableName)]
         public void DeleteTableForUserUnauthorizedUser(string tableName)
         {
-            Assert.ThrowsException<ArribaAccessForbiddenException>(() => _service.DeleteTableForUser(tableName, _nonAuthenticatedUser));
+            Assert.ThrowsException<ArribaAccessForbiddenException>(() => _service.DeleteTableForUser(tableName, _telemetry, _nonAuthenticatedUser));
         }
 
         [DataTestMethod]

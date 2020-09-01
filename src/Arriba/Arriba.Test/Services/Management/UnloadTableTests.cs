@@ -10,10 +10,10 @@ namespace Arriba.Test.Services
         [DataRow(TableName)]
         public void UnloadTableByUser(string tableName)
         {
-            Assert.IsFalse(_service.UnloadTableForUser(tableName, _nonAuthenticatedUser));
-            Assert.IsFalse(_service.UnloadTableForUser(tableName, _reader));
-            Assert.IsTrue(_service.UnloadTableForUser(tableName, _owner));
-            Assert.IsTrue(_service.UnloadTableForUser(tableName, _writer));
+            Assert.IsFalse(_service.UnloadTableForUser(tableName, _telemetry, _nonAuthenticatedUser));
+            Assert.IsFalse(_service.UnloadTableForUser(tableName, _telemetry, _reader));
+            Assert.IsTrue(_service.UnloadTableForUser(tableName, _telemetry, _owner));
+            Assert.IsTrue(_service.UnloadTableForUser(tableName, _telemetry, _writer));
         }
     }
 }

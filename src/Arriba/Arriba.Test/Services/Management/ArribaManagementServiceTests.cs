@@ -24,7 +24,7 @@ namespace Arriba.Test.Services
         {
             CheckTableColumnsQuantity(tableName, 2);
             var columnList = GetColumnDetailsList();
-            _service.AddColumnsToTableForUser(tableName, columnList, user);
+            _service.AddColumnsToTableForUser(tableName, columnList, _telemetry, user);
             CheckTableColumnsQuantity(tableName, 3);
         }
 

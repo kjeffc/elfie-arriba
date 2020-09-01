@@ -11,10 +11,10 @@ namespace Arriba.Test.Services
         [TestMethod]
         public void CreateTableForUserNullObject()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => _service.CreateTableForUser(null, _nonAuthenticatedUser));
-            Assert.ThrowsException<ArgumentNullException>(() => _service.CreateTableForUser(null, _reader));
-            Assert.ThrowsException<ArgumentNullException>(() => _service.CreateTableForUser(null, _writer));
-            Assert.ThrowsException<ArgumentNullException>(() => _service.CreateTableForUser(null, _owner));
+            Assert.ThrowsException<ArgumentNullException>(() => _service.CreateTableForUser(null, _telemetry, _nonAuthenticatedUser));
+            Assert.ThrowsException<ArgumentNullException>(() => _service.CreateTableForUser(null, _telemetry, _reader));
+            Assert.ThrowsException<ArgumentNullException>(() => _service.CreateTableForUser(null, _telemetry, _writer));
+            Assert.ThrowsException<ArgumentNullException>(() => _service.CreateTableForUser(null, _telemetry, _owner));
         }
 
         [DataTestMethod]
@@ -25,10 +25,10 @@ namespace Arriba.Test.Services
         {
             var tableRequest = new CreateTableRequest(tableName, 1000);
 
-            Assert.ThrowsException<ArgumentException>(() => _service.CreateTableForUser(tableRequest, _nonAuthenticatedUser));
-            Assert.ThrowsException<ArgumentException>(() => _service.CreateTableForUser(tableRequest, _reader));
-            Assert.ThrowsException<ArgumentException>(() => _service.CreateTableForUser(tableRequest, _writer));
-            Assert.ThrowsException<ArgumentException>(() => _service.CreateTableForUser(tableRequest, _owner));
+            Assert.ThrowsException<ArgumentException>(() => _service.CreateTableForUser(tableRequest, _telemetry, _nonAuthenticatedUser));
+            Assert.ThrowsException<ArgumentException>(() => _service.CreateTableForUser(tableRequest, _telemetry, _reader));
+            Assert.ThrowsException<ArgumentException>(() => _service.CreateTableForUser(tableRequest, _telemetry, _writer));
+            Assert.ThrowsException<ArgumentException>(() => _service.CreateTableForUser(tableRequest, _telemetry, _owner));
         }
 
         [DataTestMethod]
@@ -37,8 +37,8 @@ namespace Arriba.Test.Services
         {
             var tableRequest = new CreateTableRequest($"{tableName}_notauthorized", 1000);
 
-            Assert.ThrowsException<ArribaAccessForbiddenException>(() => _service.CreateTableForUser(tableRequest, _nonAuthenticatedUser));
-            Assert.ThrowsException<ArribaAccessForbiddenException>(() => _service.CreateTableForUser(tableRequest, _reader));
+            Assert.ThrowsException<ArribaAccessForbiddenException>(() => _service.CreateTableForUser(tableRequest, _telemetry, _nonAuthenticatedUser));
+            Assert.ThrowsException<ArribaAccessForbiddenException>(() => _service.CreateTableForUser(tableRequest, _telemetry, _reader));
         }
 
         [DataTestMethod]
@@ -61,7 +61,7 @@ namespace Arriba.Test.Services
 
             DeleteTable(_db, tableName);
 
-            var tableOwner = _service.CreateTableForUser(new CreateTableRequest(tableName, 1000), user);
+            var tableOwner = _service.CreateTableForUser(new CreateTableRequest(tableName, 1000), _telemetry, user);
             Assert.IsNotNull(tableOwner);
             Assert.IsTrue(tableOwner.CanAdminister);
             Assert.IsTrue(tableOwner.CanWrite);
@@ -74,7 +74,7 @@ namespace Arriba.Test.Services
         [DataRow(TableName)]
         public void CreateTableForUserTableAlreadyExists(string tableName)
         {
-            Assert.ThrowsException<TableAlreadyExistsException>(() => _service.CreateTableForUser(new CreateTableRequest(tableName, 1000), _owner));
+            Assert.ThrowsException<TableAlreadyExistsException>(() => _service.CreateTableForUser(new CreateTableRequest(tableName, 1000), _telemetry, _owner));
         }
     }
 }

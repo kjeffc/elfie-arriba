@@ -12,7 +12,7 @@ namespace Arriba.Test.Services
         public void AddColumnsToTableForUserTableDoesntExist(string tableName)
         {
             var columnList = GetColumnDetailsList();
-            Assert.ThrowsException<TableNotFoundException>(() => _service.AddColumnsToTableForUser(tableName, columnList, _owner));
+            Assert.ThrowsException<TableNotFoundException>(() => _service.AddColumnsToTableForUser(tableName, columnList, _telemetry, _owner));
         }
 
         [DataTestMethod]
@@ -22,7 +22,7 @@ namespace Arriba.Test.Services
         public void AddColumnsToTableForUserTableNameMissing(string tableName)
         {
             var columnList = GetColumnDetailsList();
-            Assert.ThrowsException<ArgumentException>(() => _service.AddColumnsToTableForUser(tableName, columnList, _owner));
+            Assert.ThrowsException<ArgumentException>(() => _service.AddColumnsToTableForUser(tableName, columnList, _telemetry, _owner));
         }
 
         [DataTestMethod]
@@ -30,8 +30,8 @@ namespace Arriba.Test.Services
         public void AddColumnsToTableForUserNotAuthorized(string tableName)
         {
             var columnList = GetColumnDetailsList();
-            Assert.ThrowsException<ArribaAccessForbiddenException>(() => _service.AddColumnsToTableForUser(tableName, columnList, _nonAuthenticatedUser));
-            Assert.ThrowsException<ArribaAccessForbiddenException>(() => _service.AddColumnsToTableForUser(tableName, columnList, _reader));
+            Assert.ThrowsException<ArribaAccessForbiddenException>(() => _service.AddColumnsToTableForUser(tableName, columnList, _telemetry, _nonAuthenticatedUser));
+            Assert.ThrowsException<ArribaAccessForbiddenException>(() => _service.AddColumnsToTableForUser(tableName, columnList, _telemetry, _reader));
         }
 
         [DataTestMethod]

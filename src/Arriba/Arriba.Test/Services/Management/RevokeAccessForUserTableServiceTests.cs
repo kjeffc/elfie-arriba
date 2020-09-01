@@ -12,7 +12,7 @@ namespace Arriba.Test.Services
         public void RevokeAccessForUserTableNotFound(string tableName)
         {
             var identity = new SecurityIdentity(IdentityScope.Group, "table readers");
-            Assert.ThrowsException<TableNotFoundException>(() => _service.GrantAccessForUser(tableName, identity, PermissionScope.Reader, _owner));
+            Assert.ThrowsException<TableNotFoundException>(() => _service.GrantAccessForUser(tableName, identity, PermissionScope.Reader, _telemetry, _owner));
         }
 
         [DataTestMethod]
@@ -22,7 +22,7 @@ namespace Arriba.Test.Services
         public void RevokeAccessForUserTableNameMissing(string tableName)
         {
             var identity = new SecurityIdentity(IdentityScope.Group, "table readers");
-            Assert.ThrowsException<ArgumentException>(() => _service.GrantAccessForUser(tableName, identity, PermissionScope.Reader, _owner));
+            Assert.ThrowsException<ArgumentException>(() => _service.GrantAccessForUser(tableName, identity, PermissionScope.Reader, _telemetry, _owner));
         }
 
         [DataTestMethod]
@@ -30,7 +30,7 @@ namespace Arriba.Test.Services
         public void RevokeAccessForUserSecurityIdendityMissing(string tableName, IdentityScope scope, string identityName)
         {
             var identity = new SecurityIdentity(scope, identityName);
-            Assert.ThrowsException<ArgumentException>(() => _service.GrantAccessForUser(tableName, identity, PermissionScope.Reader, _owner));
+            Assert.ThrowsException<ArgumentException>(() => _service.GrantAccessForUser(tableName, identity, PermissionScope.Reader, _telemetry, _owner));
         }
 
         [DataTestMethod]
@@ -38,9 +38,9 @@ namespace Arriba.Test.Services
         public void RevokeAccessForUserUnauthorizedUser(string tableName)
         {
             var identity = new SecurityIdentity(IdentityScope.Group, "table readers");
-            Assert.ThrowsException<ArribaAccessForbiddenException>(() => _service.GrantAccessForUser(tableName, identity, PermissionScope.Reader, _nonAuthenticatedUser));
-            Assert.ThrowsException<ArribaAccessForbiddenException>(() => _service.GrantAccessForUser(tableName, identity, PermissionScope.Reader, _reader));
-            Assert.ThrowsException<ArribaAccessForbiddenException>(() => _service.GrantAccessForUser(tableName, identity, PermissionScope.Reader, _writer));
+            Assert.ThrowsException<ArribaAccessForbiddenException>(() => _service.GrantAccessForUser(tableName, identity, PermissionScope.Reader, _telemetry, _nonAuthenticatedUser));
+            Assert.ThrowsException<ArribaAccessForbiddenException>(() => _service.GrantAccessForUser(tableName, identity, PermissionScope.Reader, _telemetry, _reader));
+            Assert.ThrowsException<ArribaAccessForbiddenException>(() => _service.GrantAccessForUser(tableName, identity, PermissionScope.Reader, _telemetry, _writer));
         }
 
         [DataTestMethod]
@@ -52,7 +52,7 @@ namespace Arriba.Test.Services
         {
             var countBefore = GetPermissionScopeQuantity(tableName, permissionScope);
             var identity = new SecurityIdentity(scope, identityName);
-            _service.RevokeAccessForUser(tableName, identity, permissionScope, _owner);
+            _service.RevokeAccessForUser(tableName, identity, permissionScope, _telemetry, _owner);
             var countAfter = GetPermissionScopeQuantity(tableName, permissionScope);
             Assert.IsTrue(countBefore >= countAfter);
         }

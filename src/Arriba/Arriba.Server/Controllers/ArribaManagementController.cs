@@ -3,6 +3,7 @@ using Arriba.Filters;
 using Arriba.Model;
 using Arriba.Model.Column;
 using Arriba.Model.Security;
+using Arriba.Monitoring;
 using Arriba.Types;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -16,10 +17,12 @@ namespace Arriba.Controllers
     public class ArribaManagementController : ControllerBase
     {
         private readonly IArribaManagementService _arribaManagement;
+        private readonly ITelemetry _telemetry;
 
-        public ArribaManagementController(IArribaManagementService arribaManagement)
+        public ArribaManagementController(IArribaManagementService arribaManagement, ITelemetry telemetry)
         {
             _arribaManagement = arribaManagement;
+            _telemetry = telemetry;
         }
 
         [HttpGet]
@@ -31,13 +34,13 @@ namespace Arriba.Controllers
         [HttpGet("allBasics")]
         public IActionResult GetAllBasics()
         {
-            return Ok(_arribaManagement.GetTablesForUser(this.User));
+            return Ok(_arribaManagement.GetTablesForUser(_telemetry, this.User));
         }
 
         [HttpGet("unloadAll")]
         public IActionResult GetUnloadAll()
         {
-            if (!_arribaManagement.UnloadAllTableForUser(this.User))
+            if (!_arribaManagement.UnloadAllTableForUser(_telemetry, this.User))
                 throw new ArribaAccessForbiddenException();
 
             return Ok($"All tables unloaded");
@@ -46,7 +49,7 @@ namespace Arriba.Controllers
         [HttpGet("table/{tableName}/unload")]
         public IActionResult GetUnloadTable(string tableName)
         {
-            if (!_arribaManagement.UnloadTableForUser(tableName, this.User))
+            if (!_arribaManagement.UnloadTableForUser(tableName, _telemetry, this.User))
                 throw new ArribaAccessForbiddenException();
 
             return Ok($"Table {tableName} unloaded");
@@ -55,28 +58,28 @@ namespace Arriba.Controllers
         [HttpPost("table")]
         public IActionResult PostCreateNewTable([Required] CreateTableRequest table)
         {
-            _arribaManagement.CreateTableForUser(table, this.User);
+            _arribaManagement.CreateTableForUser(table, _telemetry, this.User);
             return CreatedAtAction(nameof(PostCreateNewTable), null);
         }
 
         [HttpPost("table/{tableName}/addcolumns")]
         public IActionResult PostAddColumn(string tableName, [FromBody, Required] IList<ColumnDetails> columnDetails)
         {
-            _arribaManagement.AddColumnsToTableForUser(tableName, columnDetails, this.User);
+            _arribaManagement.AddColumnsToTableForUser(tableName, columnDetails, _telemetry, this.User);
             return CreatedAtAction(nameof(PostAddColumn), "Columns Added");
         }
 
         [HttpGet("table/{tableName}/save")]
         public IActionResult GetSaveTable(string tableName)
         {
-            _arribaManagement.SaveTableForUser(tableName, this.User, VerificationLevel.Normal);
+            _arribaManagement.SaveTableForUser(tableName, _telemetry, this.User, VerificationLevel.Normal);
             return Ok("Saved");
         }
 
         [HttpGet("table/{tableName}/reload")]
         public IActionResult GetReloadTable(string tableName)
         {
-            _arribaManagement.ReloadTableForUser(tableName, this.User);
+            _arribaManagement.ReloadTableForUser(tableName, _telemetry, this.User);
             return Ok("Reloaded");
         }
 
@@ -84,7 +87,7 @@ namespace Arriba.Controllers
         [HttpGet("table/{tableName}/delete")]
         public IActionResult DeleteTable(string tableName)
         {
-            _arribaManagement.DeleteTableForUser(tableName, this.User);
+            _arribaManagement.DeleteTableForUser(tableName, _telemetry, this.User);
             return Ok("Deleted");
         }
 
@@ -96,7 +99,7 @@ namespace Arriba.Controllers
             if (action != "delete")
                 return BadRequest($"Action {action} not supported");
 
-            var result = _arribaManagement.DeleteTableRowsForUser(tableName, q, this.User);
+            var result = _arribaManagement.DeleteTableRowsForUser(tableName, q, _telemetry, this.User);
             return Ok(result.Count);
         }
 
@@ -105,7 +108,7 @@ namespace Arriba.Controllers
             [FromQuery, Required] PermissionScope scope,
             [FromBody, Required] SecurityIdentity identity)
         {
-            _arribaManagement.GrantAccessForUser(tableName, identity, scope, this.User);
+            _arribaManagement.GrantAccessForUser(tableName, identity, scope, _telemetry, this.User);
             return Ok("Granted");
         }
 
@@ -114,7 +117,7 @@ namespace Arriba.Controllers
             [FromQuery, Required] PermissionScope scope,
             [FromBody, Required] SecurityIdentity identity)
         {
-            _arribaManagement.RevokeAccessForUser(tableName, identity, scope, this.User);
+            _arribaManagement.RevokeAccessForUser(tableName, identity, scope, _telemetry, this.User);
             return Ok("Granted");
         }
 

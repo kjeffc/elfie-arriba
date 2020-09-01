@@ -20,7 +20,7 @@ namespace Arriba.Test.Services
         //Without specifying a type identity.IsAuthenticated always returns false
         private const string AuthenticationType = "TestAuthenticationType";
         protected const string TableName = "Users";
-        
+
         protected readonly SecureDatabase _db;
 
         protected readonly ClaimsPrincipal _nonAuthenticatedUser;
@@ -32,11 +32,14 @@ namespace Arriba.Test.Services
         protected readonly ITelemetry _telemetry;
 
         protected readonly IServiceProvider _serviceProvider;
-        
+
         public ArribaServiceBase()
         {
+            ArribaServices.Initialize();
             var securityConfiguration = new ArribaServerConfiguration();
             securityConfiguration.EnabledAuthentication = true;
+
+            _telemetry = new Arriba.Monitoring.Telemetry(MonitorEventLevel.Verbose, "TEST", null);
 
             CreateTestDatabase(TableName);
 
@@ -46,11 +49,9 @@ namespace Arriba.Test.Services
             _reader = GetAuthenticatedUser("user1", PermissionScope.Reader);
             _writer = GetAuthenticatedUser("user2", PermissionScope.Writer);
             _owner = GetAuthenticatedUser("user3", PermissionScope.Owner);
-            
-            _service = _serviceProvider.GetService<IArribaManagementService>();
-            _db = _service.GetDatabaseForOwner(_owner);
 
-            _telemetry = new Arriba.Monitoring.Telemetry(MonitorEventLevel.Verbose, "TEST", null);
+            _service = _serviceProvider.GetService<IArribaManagementService>();
+            _db = _service.GetDatabaseForOwner(_telemetry, _owner);
         }
 
         private IServiceProvider InitServiceProvider(ISecurityConfiguration securityConfiguration)
@@ -122,7 +123,7 @@ namespace Arriba.Test.Services
 
         protected void DeleteTableForUser(string tableName, IPrincipal user)
         {
-            _service.DeleteTableForUser(tableName, user);
+            _service.DeleteTableForUser(tableName, _telemetry, user);
         }
 
     }

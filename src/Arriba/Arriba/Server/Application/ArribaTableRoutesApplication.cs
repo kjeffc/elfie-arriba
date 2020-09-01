@@ -13,8 +13,6 @@ using Arriba.Configuration;
 using Arriba.Model;
 using Arriba.Model.Column;
 using Arriba.Model.Security;
-using Arriba.Monitoring;
-using Arriba.ParametersCheckers;
 using Arriba.Server.Authentication;
 using Arriba.Server.Hosting;
 using Arriba.Types;
@@ -89,7 +87,7 @@ namespace Arriba.Server.Application
         {
             IPrincipal user = ctx.Request.User;
 
-            IDictionary<string, TableInformation> allBasics = _service.GetTablesForUser(user);
+            IDictionary<string, TableInformation> allBasics = _service.GetTablesForUser(ctx, user);
 
             return ArribaResponse.Ok(allBasics);
         }
@@ -97,7 +95,7 @@ namespace Arriba.Server.Application
         private IResponse GetTableInformation(IRequestContext ctx, Route route)
         {
             var tableName = GetAndValidateTableName(route);
-            var tableInformation = _service.GetTableInformationForUser(tableName, ctx.Request.User);
+            var tableInformation = _service.GetTableInformationForUser(tableName, ctx, ctx.Request.User);
 
             if (tableInformation == null)
                 return ArribaResponse.NotFound();
@@ -109,7 +107,7 @@ namespace Arriba.Server.Application
         {
             var tableName = GetAndValidateTableName(route);
 
-            if (_service.UnloadTableForUser(tableName, ctx.Request.User))
+            if (_service.UnloadTableForUser(tableName, ctx, ctx.Request.User))
                 return ArribaResponse.Ok($"Table {tableName} unloaded");
             else
                 return ArribaResponse.Forbidden($"Not able to unload table {tableName}");
@@ -117,7 +115,7 @@ namespace Arriba.Server.Application
 
         private IResponse UnloadAll(IRequestContext ctx, Route route)
         {
-            if (!_service.UnloadAllTableForUser(ctx.Request.User))
+            if (!_service.UnloadAllTableForUser(ctx, ctx.Request.User))
                 return ArribaResponse.Forbidden("Not able to unload all tables");
 
             return ArribaResponse.Ok("All Tables unloaded");
@@ -128,18 +126,15 @@ namespace Arriba.Server.Application
             var tableName = GetAndValidateTableName(route);
             var user = ctx.Request.User;
 
-            using (ctx.Monitor(MonitorEventLevel.Information, "Drop", type: "Table", identity: tableName))
+            try
             {
-                try
-                {
-                    _service.DeleteTableForUser(tableName, user);
-                }
-                catch (Exception ex)
-                {
-                    return ExceptionToArribaResponse(ex);
-                }
-                return ArribaResponse.Ok("Table deleted");
+                _service.DeleteTableForUser(tableName, ctx, user);
             }
+            catch (Exception ex)
+            {
+                return ExceptionToArribaResponse(ex);
+            }
+            return ArribaResponse.Ok("Table deleted");
         }
 
         private IResponse GetTablePermissions(IRequestContext request, Route route)
@@ -163,7 +158,7 @@ namespace Arriba.Server.Application
 
             try
             {
-                var result = _service.DeleteTableRowsForUser(tableName, query, user);
+                var result = _service.DeleteTableRowsForUser(tableName, query, ctx, user);
                 return ArribaResponse.Ok(result.Count);
             }
             catch (Exception ex)
@@ -190,21 +185,18 @@ namespace Arriba.Server.Application
             return ArribaResponse.Ok("Security Updated");
         }
 
-        private async Task<IResponse> CreateNew(IRequestContext request, Route routeData)
+        private async Task<IResponse> CreateNew(IRequestContext ctx, Route routeData)
         {
-            CreateTableRequest createTable = await request.Request.ReadBodyAsync<CreateTableRequest>();
-            var user = request.Request.User;
+            CreateTableRequest createTable = await ctx.Request.ReadBodyAsync<CreateTableRequest>();
+            var user = ctx.Request.User;
 
-            using (request.Monitor(MonitorEventLevel.Information, "Create", type: "Table", identity: createTable.TableName, detail: createTable))
+            try
             {
-                try
-                {
-                    _service.CreateTableForUser(createTable, user);
-                }
-                catch (Exception ex)
-                {
-                    return ExceptionToArribaResponse(ex);
-                }
+                _service.CreateTableForUser(createTable, ctx, user);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionToArribaResponse(ex);
             }
 
             return ArribaResponse.Created(createTable.TableName);
@@ -213,74 +205,64 @@ namespace Arriba.Server.Application
         /// <summary>
         /// Add requested column(s) to the specified table.
         /// </summary>
-        private async Task<IResponse> AddColumns(IRequestContext request, Route route)
+        private async Task<IResponse> AddColumns(IRequestContext ctx, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            var user = request.Request.User;
+            var user = ctx.Request.User;
 
-            using (request.Monitor(MonitorEventLevel.Information, "AddColumn", type: "Table", identity: tableName))
+            List<ColumnDetails> columns = await ctx.Request.ReadBodyAsync<List<ColumnDetails>>();
+            try
             {
-                List<ColumnDetails> columns = await request.Request.ReadBodyAsync<List<ColumnDetails>>();
-                try
-                {
-                    _service.AddColumnsToTableForUser(tableName, columns, user);
-                }
-                catch (Exception ex)
-                {
-                    return ExceptionToArribaResponse(ex);
-                }
-
-                return ArribaResponse.Created("Added");
+                _service.AddColumnsToTableForUser(tableName, columns, ctx, user);
             }
+            catch (Exception ex)
+            {
+                return ExceptionToArribaResponse(ex);
+            }
+
+            return ArribaResponse.Created("Added");
         }
 
         /// <summary>
         /// Reload the specified table.
         /// </summary>
-        private IResponse Reload(IRequestContext request, Route route)
+        private IResponse Reload(IRequestContext ctx, Route route)
         {
             string tableName = GetAndValidateTableName(route);
-            var user = request.Request.User;
+            var user = ctx.Request.User;
 
-            using (request.Monitor(MonitorEventLevel.Information, "Reload", type: "Table", identity: tableName))
+            try
             {
-                try
-                {
-                    _service.ReloadTableForUser(tableName, user);
-                }
-                catch (Exception ex)
-                {
-                    return ExceptionToArribaResponse(ex);
-                }
-
-                return ArribaResponse.Ok("Reloaded");
+                _service.ReloadTableForUser(tableName, ctx, user);
             }
+            catch (Exception ex)
+            {
+                return ExceptionToArribaResponse(ex);
+            }
+
+            return ArribaResponse.Ok("Reloaded");
         }
 
         /// <summary>
         /// Saves the specified table.
         /// </summary>
-        private IResponse Save(IRequestContext request, Route route)
+        private IResponse Save(IRequestContext ctx, Route route)
         {
             string tableName = GetAndValidateTableName(route);
 
-            using (request.Monitor(MonitorEventLevel.Information, "Save", type: "Table", identity: tableName))
+            try
             {
-                try
-                {
-                    var saveOperation = _service.SaveTableForUser(tableName, request.Request.User, VerificationLevel.Normal);
+                var saveOperation = _service.SaveTableForUser(tableName, ctx, ctx.Request.User, VerificationLevel.Normal);
 
-                    if (!saveOperation.Item1)
-                    {
-                        return ArribaResponse.Error("Table state is inconsistent. Not saving. Restart server to reload. Errors: " + saveOperation.Item2.Errors);
-                    }
-                    return ArribaResponse.Ok("Saved");
-                }
-                catch (Exception ex)
+                if (!saveOperation.Item1)
                 {
-                    return ExceptionToArribaResponse(ex);
+                    return ArribaResponse.Error("Table state is inconsistent. Not saving. Restart server to reload. Errors: " + saveOperation.Item2.Errors);
                 }
-
+                return ArribaResponse.Ok("Saved");
+            }
+            catch (Exception ex)
+            {
+                return ExceptionToArribaResponse(ex);
             }
         }
 
@@ -290,36 +272,33 @@ namespace Arriba.Server.Application
             Revoke = 2
         }
 
-        private async Task<IResponse> ExecuteAuthorizationPermission(AuthorizationOperation operation, IRequestContext request, Route route)
+        private async Task<IResponse> ExecuteAuthorizationPermission(AuthorizationOperation operation, IRequestContext ctx, Route route)
         {
-            var user = request.Request.User;
+            var user = ctx.Request.User;
             string tableName = GetAndValidateTableName(route);
-            var identity = await request.Request.ReadBodyAsync<SecurityIdentity>();
+            var identity = await ctx.Request.ReadBodyAsync<SecurityIdentity>();
 
             if (!Enum.TryParse<PermissionScope>(route["scope"], true, out var scope))
             {
                 return ArribaResponse.BadRequest("Unknown permission scope {0}", route["scope"]);
             }
 
-            using (request.Monitor(MonitorEventLevel.Information, $"{operation}Permission", type: "Table", identity: tableName, detail: new { Scope = scope, Identity = identity }))
+            try
             {
-                try
-                {
-                    if (operation == AuthorizationOperation.Grant)
-                        _service.GrantAccessForUser(tableName, identity, scope, user);
-                    else
-                        _service.RevokeAccessForUser(tableName, identity, scope, user);
-                }
-                catch (Exception ex)
-                {
-                    return ExceptionToArribaResponse(ex);
-                }
-                SecurityPermissions security = this.Database.Security(tableName);
-                security.Revoke(identity, scope);
-
-                // Save permissions
-                this.Database.SaveSecurity(tableName);
+                if (operation == AuthorizationOperation.Grant)
+                    _service.GrantAccessForUser(tableName, identity, scope, ctx, user);
+                else
+                    _service.RevokeAccessForUser(tableName, identity, scope, ctx, user);
             }
+            catch (Exception ex)
+            {
+                return ExceptionToArribaResponse(ex);
+            }
+            SecurityPermissions security = this.Database.Security(tableName);
+            security.Revoke(identity, scope);
+
+            // Save permissions
+            this.Database.SaveSecurity(tableName);
 
             return ArribaResponse.Ok($"{operation} succeeded");
         }
