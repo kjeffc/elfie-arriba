@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Arriba.Client.Serialization.Json;
 using Arriba.Communication;
 using Arriba.Composition;
 using Arriba.Configuration;
@@ -49,8 +50,14 @@ namespace Arriba.Server
             services.AddSingleton(serverConfig);
             services.AddSingleton((_) => serverConfig.OAuthConfig);
             services.AddOAuth(serverConfig);
-            services.AddControllers();
-            
+            services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                foreach (var converter in ConverterFactory.GetArribaConverters())
+                {
+                    options.SerializerSettings.Converters.Add(converter);
+                }
+            });
+
             //Arriba Composition
             services.AddSingleton<ISecurityConfiguration>(serverConfig);
             services.AddArribaServices(serverConfig);
@@ -139,18 +146,18 @@ namespace Arriba.Server
                 {
                     if (!context.Response.HasStarted)
                     {
-                    context.Response.StatusCode = 500;
+                        context.Response.StatusCode = 500;
 
-                    if (responseBody.CanWrite)
-                    {
-                        using (var failureWriter = new StreamWriter(responseBody))
+                        if (responseBody.CanWrite)
                         {
-                            var message = String.Format("ERROR: Content writer {0} for content type {1} failed with exception {2}", writer.GetType(), writer.ContentType, writeException.GetType().Name);
-                            await failureWriter.WriteAsync(message);
+                            using (var failureWriter = new StreamWriter(responseBody))
+                            {
+                                var message = String.Format("ERROR: Content writer {0} for content type {1} failed with exception {2}", writer.GetType(), writer.ContentType, writeException.GetType().Name);
+                                await failureWriter.WriteAsync(message);
+                            }
                         }
                     }
                 }
-            }
             }
 
             response.Dispose();
