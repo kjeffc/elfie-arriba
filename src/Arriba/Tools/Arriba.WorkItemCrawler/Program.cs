@@ -17,6 +17,7 @@ namespace Arriba
 {
     internal class Program
     {
+        // Work item crawler fails to initialize sometimes
         private static async Task<int> Main(string[] args)
         {
             Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
@@ -61,6 +62,7 @@ namespace Arriba
                     // Build the item provider
                     IItemProvider provider = ItemProviderUtilities.Build(config);
 
+                    // GetColumnsAsync fails because cannot find table Peoples
                     // Determine the list of columns to crawl
                     IEnumerable<ColumnDetails> columns = await provider.GetColumnsAsync();
                     if (config.ColumnsToInclude.Count > 0) columns = columns.Where(cd => config.ColumnsToInclude.Contains(cd.Name));

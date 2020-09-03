@@ -38,6 +38,7 @@ namespace Arriba.Communication
             }
         }
 
+        // This fails when attempting to serialize
         public IDisposable Monitor(MonitorEventLevel level, string name, string type = null, string identity = null, object detail = null)
         {
             return _telemetry.Monitor(level, name, type, identity, detail);

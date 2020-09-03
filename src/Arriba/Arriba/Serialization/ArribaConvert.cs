@@ -1,4 +1,5 @@
 ﻿using Arriba.Serialization;
+using System;
 
 namespace Arriba
 {
@@ -21,6 +22,7 @@ namespace Arriba
 
         public static string ToJson<T>(T content)
         {
+            Console.WriteLine("Content to string: " + content.ToString());
             return _convert.ToJson<T>(content);
         }
     }
