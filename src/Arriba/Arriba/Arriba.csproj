@@ -9,4 +9,8 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="OpenTelemetry.Exporter.Console" Version="0.5.0-beta.2" />
+    </ItemGroup>
+
 </Project>

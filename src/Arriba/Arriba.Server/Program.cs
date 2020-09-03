@@ -17,6 +17,8 @@ namespace Arriba.Server
 {
     internal class Program
     {
+        // Is this considered a static logger? Because it only exists in this context and isn't actually passed into 
+        // other methods
         private static readonly ActivitySource OpenTelemetryActivitySource = new ActivitySource("Microsoft.Arriba.Server");
 
         private static void Main(string[] args)
@@ -28,6 +30,7 @@ namespace Arriba.Server
                 .AddConsoleExporter()
                 .Build();
 
+            // I believe this using is supposed to wrap around all of your logic
             using (var activity = OpenTelemetryActivitySource.StartActivity("Server"))
             {
                 activity?.SetTag("foo", 1);

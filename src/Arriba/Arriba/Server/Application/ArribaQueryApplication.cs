@@ -2,6 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Linq;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using Arriba.Communication;
@@ -28,6 +32,7 @@ namespace Arriba.Server
     {
         private const string DefaultFormat = "dictionary";
         private readonly IArribaQueryServices _service;
+        private static readonly ActivitySource ArribaQueryApplicationSource = new ActivitySource(".Arriba.Server.ArribaQueryApplication");
 
         public ArribaQueryApplication(DatabaseFactory f, ClaimsAuthenticationService auth, ISecurityConfiguration securityConfiguration, IArribaQueryServices queryServices)
             : base(f, auth, securityConfiguration)
@@ -207,8 +212,16 @@ namespace Arriba.Server
             return ArribaResponse.Ok(result);
         }
 
+        // According to https://github.com/open-telemetry/opentelemetry-dotnet/blob/master/examples/Console/TestRedis.cs
+        // if another activity was already started, it'll use it as a source, so this should use Server activity as a parent
         private async Task<IResponse> Suggest(IRequestContext ctx, Route route)
         {
+            // You're supposed to put all the logic of your method in the using statement
+            using (var activity = ArribaQueryApplicationSource.StartActivity("Suggest"))
+            {
+                activity?.SetTag("Context", ctx);
+            }
+
             NameValueCollection p = await ParametersFromQueryStringAndBody(ctx);
             IPrincipal user = ctx.Request.User;
             IntelliSenseResult result;
