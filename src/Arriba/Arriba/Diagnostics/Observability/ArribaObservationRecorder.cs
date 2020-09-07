@@ -20,48 +20,48 @@ namespace Arriba.Diagnostics.Observability
             _metrics = new Dictionary<string, double>();
         }
 
-        public void RecordEvent()
+        public void FlushEvent()
         {
             if (_properties.Count() > 0)
             {
                 string message = "";
                 _properties.ToList().ForEach(x => message += x.Key + ": " + x.Value + "\n");
 
-                RecordTrace(message);
+                FlushTrace(message);
                 _properties.Clear();
             }
         }
 
-        public void RecordMetrics()
+        public void FlushMetrics()
         {
             if (_metrics.Count > 0)
             {
                 string message = "";
                 _metrics.ToList().ForEach(x => message += x.Key + ": " + x.Value + "\n");
 
-                RecordTrace(message);
+                FlushTrace(message);
                 _metrics.Clear();
             }
         }
 
-        public void RecordTrace(string message)
+        public void FlushTrace(string message)
         {
             Console.WriteLine(message);
         }
 
         public void WriteLine(string message)
         {
-            RecordTrace(message);
+            FlushTrace(message);
         }
 
         // TODO: make threadsafe
-        public void RememberProperty(string name, string value)
+        public void RecordProperty(string name, string value)
         {
             _properties.Add(name, value);
         }
 
         // TODO: make threadsafe
-        public void RememberMetric(string name, double value)
+        public void RecordMetric(string name, double value)
         {
             _metrics[name] = value;
         }
@@ -72,8 +72,8 @@ namespace Arriba.Diagnostics.Observability
             {
                 if (disposing)
                 {
-                    RecordMetrics();
-                    RecordEvent();
+                    FlushMetrics();
+                    FlushEvent();
                 }
 
                 disposedValue = true;

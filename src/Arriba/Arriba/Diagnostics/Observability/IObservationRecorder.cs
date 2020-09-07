@@ -5,11 +5,11 @@ namespace Arriba.Diagnostics.Observability
     {
         IObservationContext Context { get; }
 
-        void RecordTrace(string message);
-        void RecordEvent();
-        void RecordMetrics();
-        void RememberProperty(string name, string value);
-        void RememberMetric(string name, double value);
+        void FlushTrace(string message);
+        void FlushEvent();
+        void FlushMetrics();
+        void RecordProperty(string name, string value);
+        void RecordMetric(string name, double value);
 
     }
 }
